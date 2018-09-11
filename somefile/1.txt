@@ -1,0 +1,150 @@
+﻿//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
+package com.sccin.eduonline.service.sendMessage;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sccin.eduonline.pojo.APIResult;
+import com.sccin.eduonline.pojo.GetTokenParams;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+public class SendMessageService {
+    public final String apiSend = "/api/notice/send";
+    public final String apiGetToken = "Account/GetAccountToken";
+    public ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    private GetTokenParams getTokenParams;
+
+    public SendMessageService() {
+    }
+
+    public APIResult toResult(String resultString) {
+        APIResult result = null;
+        if(resultString != null && !resultString.equals("")) {
+            try {
+                result = (APIResult)this.mapper.readValue(resultString, APIResult.class);
+            } catch (JsonParseException var4) {
+                var4.printStackTrace();
+            } catch (JsonMappingException var5) {
+                var5.printStackTrace();
+            } catch (IOException var6) {
+                var6.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+
+    public APIResult sendMessage(int messageType, List<String> messageTitleList, List<String> departmentUniqueIdList) {
+        if(this.getTokenParams.getIsSend().equals("1")) {
+            return null;
+        } else {
+            SendMessageParams sendMessageParams = new SendMessageParams();
+            sendMessageParams.setMessageType(messageType);
+            sendMessageParams.setMessageTitles(messageTitleList);
+            sendMessageParams.setGroupIds(departmentUniqueIdList);
+            String url = this.getUrl("/api/notice/send");
+            String reqString = null;
+
+            try {
+                reqString = this.mapper.writeValueAsString(sendMessageParams);
+            } catch (JsonProcessingException var10) {
+                var10.printStackTrace();
+            }
+
+            if(reqString != null && !"".equals(reqString)) {
+                APIResult token = this.getToken();
+                if(token != null && "0".equals(token.getResultSuccess())) {
+                    String resultString = this.visitRestByRestTemplate(url, reqString, token.getResultMsg());
+                    APIResult sendMessageResult = this.toResult(resultString);
+                    return sendMessageResult;
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public APIResult sendGradeMessage(String examName, List<Map<String, Object>> grades) {
+        Map<String, Object> map = new HashMap();
+        map.put("examName", examName);
+        map.put("grades", grades);
+        String url = "/api/train/grade";
+        url = this.getUrl(url);
+        String reqString = null;
+
+        try {
+            reqString = this.mapper.writeValueAsString(map);
+        } catch (JsonProcessingException var9) {
+            var9.printStackTrace();
+        }
+
+        APIResult token = this.getToken();
+        if(token != null && "0".equals(token.getResultSuccess())) {
+            String resultString = this.visitRestByRestTemplate(url, reqString, token.getResultMsg());
+            APIResult sendMessageResult = this.toResult(resultString);
+            return sendMessageResult;
+        } else {
+            return null;
+        }
+    }
+
+    public String getUrl(String serviceUrl) {
+        String url = null;
+        url = this.getTokenParams.getDomain() + serviceUrl;
+        return url;
+    }
+
+    public APIResult getToken() {
+        String resultString = null;
+        String url = this.getUrl("Account/GetAccountToken");
+        String reqString = "{\"userName\":" + this.getTokenParams.getPassname() + ",\"userPwd\":" + this.getTokenParams.getPassword() + "}";
+        resultString = this.visitRestByRestTemplate(url, reqString, (String)null);
+        APIResult token = this.toResult(resultString);
+        return token;
+    }
+
+    public RestTemplate buildRestTemp() {
+        List<HttpMessageConverter<?>> msgConvers = (new RestTemplate()).getMessageConverters();
+        msgConvers.add(1, new StringHttpMessageConverter(Charset.forName("UTF-8")));
+        msgConvers.remove(2);
+        return new RestTemplate(msgConvers);
+    }
+
+    public HttpEntity buildHttpEntity(MediaType mediaType, String reqStr, String headerAuthorization) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(mediaType);
+        if(headerAuthorization != null && !headerAuthorization.equals("")) {
+            headers.set("Authorization", headerAuthorization);
+        }
+
+        return new HttpEntity(reqStr, headers);
+    }
+
+    public String visitRestByRestTemplate(String url, String jsonParam, String headerAuthorization) {
+        ResponseEntity<String> response = this.buildRestTemp().postForEntity(url, this.buildHttpEntity(MediaType.APPLICATION_JSON, jsonParam, headerAuthorization), String.class, new Object[0]);
+        return response != null && response.getStatusCode() == HttpStatus.OK?(String)response.getBody():null;
+    }
+}

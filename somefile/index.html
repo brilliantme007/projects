@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"  lang="zh_CN">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+  <title>支付</title>
+  <link rel="stylesheet" type="text/css" th:href="@{/ui/back/lib/custom/css/bootstrap/bootstrap.min.css}" media="screen" />
+  <!--/*-->
+  <link rel="stylesheet" th:href="@{/resources/css/custom-theme/jquery-ui-1.10.3.custom.css}" />
+  <!--[if lt IE 9]>
+  <link rel="stylesheet" th:href="@{/resources/css/custom-theme/jquery.ui.1.10.3.ie.css}" />
+  <![endif]-->
+  <link rel="stylesheet" th:href="@{/resources/js/google-code-prettify/prettify.css}" />
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+    <script th:src="@{/resources/js/vendor/html5shiv.js}" type="text/javascript"></script>
+    <script th:src="@{/resources/js/vendor/respond.min.js}" type="text/javascript"></script>
+  <![endif]-->
+  <!--*/-->
+  <link rel="stylesheet" type="text/css" th:href="@{/ui/back/lib/custom/css/custom.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/custom.css}" />
+  <link rel="stylesheet" th:href="@{/css/jquery.searchableSelect.css}"  type="text/css" />
+
+  <link id="bsdp-css" th:href="@{/ui/back/lib/custom/css/bootstrap/bootstrap-datepicker3.min.css}" rel="stylesheet" />
+  <style type="text/css">
+  .input-daterange {
+    width: auto;
+  }
+  .input-daterange input:last-child {
+    border-radius: 4px;
+  }
+  .input-daterange .add-on {
+    font-weight: 700;
+  }
+  table th {
+    text-align: center;
+  }
+  .noTitleStuff .ui-dialog-titlebar {display:none}
+  
+  .ui-list-icons-3 { padding-bottom: 0; }
+  .ui-list-icons-3 li { height: 276px; width: 570px; padding-bottom: 0; margin-bottom: 0; }
+  .ui-list-icons-3 li .icon-box { width: 560px; }
+  .ui-list-icons-3 li .icon-box .bank-name { width: 560px; }
+  .ui-list-icons-3 li .icon-box .bank-name em { width: 140px; }
+  .ui-list-icons-3 li .icon-box .bank-name2 { top: 66px; }
+  .ui-list-icons-3 li .icon-box .bank-name3 { top: 96px; }
+  .ui-list-icons-3 li .icon-box .bank-name4 { top: 126px; }
+  .ui-list-icons-3 li .icon-box .bank-name5 { top: 156px; }
+  .ui-list-icons-3 li .icon-box .bank-name6 { top: 186px; }
+  .ui-list-icons-3 li .icon-box .bank-name7 { top: 216px; }
+  .ui-list-icons-3 li .icon-box .bank-name8 { top: 246px; }
+  
+  .window-table td { padding: 4px 8px; width: 200px;}
+  .window-table th { text-align: right;width: 120px;vertical-align: middle;}
+  .input-small, .form-small .input, .form-small .button {padding: 5px;font-size: 12px; line-height: 18px; height: 28px;}
+  .input {font-size: 14px;padding: 6px;border: solid 1px #ddd;width: 100%;height: 34px;line-height: 20px;display: block;border-radius: 4px;box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1) 0s;}
+
+  .icon-box .bank-name2 { position: absolute; left: -1px; top: 67px; padding: 3px 0; z-index: 1; line-height: 24px; width: 260px; overflow: hidden; padding-left: 5px; font-size: 14px; border: 1px solid #EEE; background-color: #F6F6F6; }
+  .bankDialog .modal-dialog { width: 630px;}
+  .cardSpan { width: 32px;font-size: 14px;float: right;text-align: center;line-height: 27px;background-color: rgba(0, 0, 0, 0.3);color: #fff;font-weight: normal;}
+  </style>
+  <!-- 
+  <link type="text/css" rel="stylesheet" media="print" th:href="@{/ui/back/lib/custom/css/print.css}" /> -->
+</head>
+<body style="background-color:#FFFFFF">
+<div th:if="${success}" class="sel-pay w_1000 noprint" style="z-index:1; border-top:0px solid #FFFFFF">
+    <div class="wrap-1080-mid">
+        <div id="header" class="clear">
+            <div class="logo f_l">
+                <img th:src="@{'/images/'+${logoName}}" alt=""/>
+            </div>
+        </div>
+    </div>
+</div>
+  <input th:if="${success}" th:value="${token}" type="hidden"  name="token" />
+  <input th:if="${success}" th:value="${userid}" type="hidden"  name="userid" />
+  <input th:if="${success}" th:value="${fpaddress}" type="hidden"  name="fpaddress" />
+  <input th:if="${success}" th:value="${fpbucode}" type="hidden"  name="fpbucode" />
+  <input th:if="${success}" th:value="${targetid}" type="hidden"  name="targetid" />
+  <input th:if="${success}" th:value="${username}" type="hidden"  name="username" />
+  <input th:if="${success}" th:value="${abc_cofig}" type="hidden"  name="abc_cofig" />
+
+  <input th:if="${enddate_limit !=null }" th:value="${enddate_limit}" type="hidden"  id="enddate_limit_definded" />
+  <input th:if="${startdate_limit !=null }" th:value="${startdate_limit}" type="hidden"  id="startdate_limit_definded" />
+
+  <div th:if="${success}" class="order-wrapper noprint" style="background:none repeat scroll 0 0 #FFFFFF;margin:15px auto 0 auto">
+    <div class="order-title" th:text="${proinfo}" th:if="${projinfo!=''}">国家投资工程招标公告一标段投标保证金缴纳</div>
+    <div class="order-seller">
+        <p th:inline="text" id="toorg">收款方：[[${toorg}]]</p>
+        <p th:inline="text">支付方：[[${frorg}]]</p>
+        <p th:inline="text" th:if="${remark !=''}">描述：[[${remark}]]</p>
+    </div>
+    <div class="order-amount">
+        <span class="order-real-amount"><em class="" th:text="${amount}">100.00</em>元</span> <br />
+        <span class="order-real-amount" th:if="${showMsg !=''}" th:text="${showMsg}" style="color: #009900"></span>
+    </div>
+    <!--/*-->
+    <button id="test_btn" class="btn btn-warning btn-sm" type="button">测试</button>
+    <!--*/-->
+  </div>
+  <div th:if="${success}" class="sel-pay w_1000 noprint" >
+    <div class="hd">
+      <ul>
+        <li th:if="${online}">在线支付</li>
+        <li th:if="${transfer}">转账支付</li>
+        <li th:if="${balance}">余额支付</li>
+        <li th:if="${isAdd}">添加银行账户</li>
+      </ul>
+    </div>
+    <div class="bd">
+      <!-- ONLINEPAYMENT -->
+      <div th:if="${online}" class="payment">
+        <div class="ui-title ui-title-line fn-clear">
+          <h2>1，选择商户</h2>
+        </div>
+        <div class="cashier-bank-kj fn-clear ">
+          <ul class="ui-list-icons fn-mt-20 fn-clear ">
+            <li th:each="merchant: ${merchants}" th:if="${#strings.contains(merchant.payMethod,'ONLINEPAYMENT')}" class="cashier-bank-kj ">
+              <input th:id="${'merchant'+merchant.id}" th:value="${merchant.id}" type="radio" name="merchantId" id="bank1" />
+              <input th:value="${merchant.bankCode}" type="hidden"  name="bankCode" />
+              <input th:value="${merchant.bankName}" type="hidden"  name="bankName" />
+              <input th:value="${merchant.orgName}"  type="hidden"  name="orgName" />
+              <label th:for="${'merchant'+merchant.id}" class="icon-box limited-coupon" for="bank1">
+                <span th:class="${'false icon '+merchant.bankCode}" class="false icon ABC"></span>
+                <div>
+                  <span th:text="${merchant.name}" class="bank-name">中国农业银行成都支行温江分理处</span>
+                </div>
+                <!--<span th:text="${merchant.accOpenDept}" class="open-bank">中国农业银行成都支行</span>-->
+              </label>
+            </li>
+            <!--/*-->
+            <li class="cashier-bank-kj ">
+              <input type="radio" id="bank1" />
+              <label class="icon-box limited-coupon" for="bank1"><span title="中国农业银行成都支行" class="false icon ABC"></span><span class="bank-name">中国农业银行成都支行温江分理处</span>
+              </label>
+            </li>
+            <li class="cashier-bank-kj ">
+              <input type="radio" id="bank2" />
+              <label class="icon-box limited-coupon" for="bank2"><span title="中国农业银行成都支行" class="false icon ABC"></span><span class="bank-name">中国农业银行成都支行温江分理处</span>
+              </label>
+            </li>
+            <li class="cashier-bank-kj ">
+              <input type="radio" id="bank3" />
+              <label class="icon-box current limited-coupon" for="bank3"><span title="中国农业银行成都支行" class="false icon ABC"></span><span class="bank-name">中国农业银行成都支行温江分理处</span>
+              </label>
+            </li>
+            <!--*/-->
+          </ul>
+        </div>
+        <div id="online_acc" style="display:none;">
+          <div class="ui-title ui-title-line fn-clear">
+            <!-- <h2>2，选择您在<span></span>的账户</h2> -->
+            <h2>2，选择您的缴纳账户</h2>
+          </div>
+          <div class="cashier-bank-kj fn-clear ">
+            <ul class="ui-list-icons fn-mt-20 fn-clear ">
+              <li th:if="${accounts !=''}" th:each="account: ${accounts}" class="cashier-bank-kj ">
+                <input th:id="${'account_'+account.accno}" th:value="${account.accno}" type="radio" name="no" id="bank4" />
+                <input th:value="${account.accname}" type="hidden"  name="name" />
+                <input th:value="${account.bankcode}" type="hidden"  name="bankCode" />
+                <input th:value="${account.cusno}" type="hidden"  name="payId" />
+                <input th:value="${account.acctype}" type="hidden"  name="type" />
+                <label th:for="${'account_'+account.accno}" style="font-size:16px" th:inline="text" class="icon-box limited-coupon" for="bank4"> [[${account.accno}]] 
+                	<span style="float:right;font-size:14px" th:if="${account.basicDoor}">基本户</span>
+                	<span th:text="${account.accname}" class="bank-name">账户1</span>
+                </label>
+              </li>
+              <!--/*-->
+              <li class="cashier-bank-kj ">
+                <input type="radio" id="bank4" />
+                <label class="icon-box limited-coupon" for="bank4"> 6225880286836292 <span class="bank-name">账户1</span>
+                </label>
+              </li>
+              <!--*/-->
+            </ul>
+          </div>
+          <button class="btn btn-warning btn-lg disabled" type="button" id="online_btn" data-loading-text="支付处理中..." style="margin-left:40px;">支付</button>
+        </div>
+      </div>
+      <!-- TRANSFEROFFLINE -->
+      <div th:if="${transfer}" class="payment">
+        <!--/*-->
+        <div id="fuelux-wizard" class="row-fluid" data-target="#step-container">
+          <ul class="wizard-steps">
+            <li data-target="#step1" class="active">
+              <span class="step">1</span>
+              <span class="title">选择银行</span>
+            </li>
+            <li data-target="#step2">
+              <span class="step">2</span>
+              <span class="title">支付确认</span>
+            </li>
+          </ul>
+        </div>
+        <!--*/-->
+        <div id="transfer_step1">
+          <div class="alert alert-warning fade in">
+            <span class="oper-general">
+              <p>第一步：请用企业基本账户将投标保证金足额汇入保证金收款账户；</p>
+              <p>第二步：确认转账成功后在转账支付页面完成流水查询及订单关联确认； </p>
+              <p>第三步：投标保证金未关联或是未显示支付成功，都会因没有按照招标文件规定递交保证金而废标；</p>
+            </span>
+            <span class="oper-icbc" style="display: none;">
+              <p>第一步：生成订单后，请记录下收款账号，然后进行转账操作</p>
+              <p>第二步：转账支付成功后，在业务系统查看订单状态是否为“支付成功” </p>
+            </span>
+          </div>
+          <div class="ui-title ui-title-line fn-clear">
+            <h2>第一步：选择银行</h2>
+          </div>
+          <div class="cashier-bank-kj fn-clear ">
+            <ul class="ui-list-icons ui-list-icons-2 fn-mt-20 fn-clear ">
+              <li th:each="merchant: ${merchants}" th:if="${#strings.contains(merchant.payMethod,'TRANSFEROFFLINE')}" class="cashier-bank-kj ">
+                <input th:id="${'transfer_merchant_'+merchant.id}" th:value="${merchant.id}" type="radio" name="transferMerchantId" id="bank1" />
+                <input th:value="${merchant.bankCode}" type="hidden"  name="bankCode" />
+                <label th:for="${'transfer_merchant_'+merchant.id}" class="icon-box limited-coupon" for="bank1">
+                  <span th:title="${merchant.name}" title="中国农业银行成都支行" th:class="${'icon-box-top false icon '+merchant.bankCode}" class="icon-box-top false icon ABC"></span>
+                <span th:switch="${merchant.bankCode}" th:inline="text" class="bank-name bank-name1"><em>账户：</em>
+                  <span th:case="'ICBC'">******************</span>
+                  <span th:case="*">[[${merchant.accNo}]]</span>
+                </span>
+                  <span th:inline="text" class="bank-name bank-name21"><em>账户名：</em>[[${merchant.accName}]]</span>
+                  <span th:inline="text" class="bank-name bank-name3"><em>开户行：</em>[[${merchant.accOpenDept}]]</span>
+                </label>
+              </li>
+              <!--/*-->
+              <li class="cashier-bank-kj ">
+                <input type="radio" id="bank1" />
+                <label class="icon-box limited-coupon" for="bank1"><span title="中国农业银行成都支行" class="false icon ABC"></span><span class="bank-name"><em>开户行：</em>中国农业银行成都支行温江分理处</span>
+                <span class="bank-name bank-name2"><em>账户：</em>6225880886836293</span><span class="bank-name bank-name3"><em>商户名：</em>四川省公共资源交易中心</span>
+                </label>
+              </li>
+              
+              <li class="cashier-bank-kj ">
+                <input type="radio" id="bank2" />
+                <label class="icon-box limited-coupon" for="bank2"><span title="中国农业银行成都支行" class="false icon ABC"></span><span class="bank-name"><em>开户行：</em>中国农业银行成都支行温江分理处</span>
+                <span class="bank-name bank-name2"><em>账户：</em>6225880886836293</span><span class="bank-name bank-name3"><em>商户名：</em>四川省公共资源交易中心</span>
+                </label>
+              </li>
+              <!--*/-->
+            </ul>
+          </div>
+          <div id="transfer_acc" style="display:none;">
+            <div class="ui-title ui-title-line fn-clear">
+              <h2>第二步：选择转账支付账户</h2>
+            </div>
+            <div class="cashier-bank-kj fn-clear ">
+              <ul class="ui-list-icons fn-mt-20 fn-clear ">
+                <li th:if="${accounts !=''}" th:each="account: ${accounts}" class="cashier-bank-kj ">
+                  <input th:id="${'account_'+account.accno}" th:value="${account.accno}" type="radio" name="no" id="bank4" />
+                  <input th:value="${account.accname}" type="hidden"  name="name" />
+                  <input th:value="${account.bankcode}" type="hidden"  name="bankCode" />
+                  <input th:value="${account.cusno}" type="hidden"  name="payId" />
+                  <input th:value="${account.acctype}" type="hidden"  name="type" />
+                  <label th:for="${'account_'+account.accno}" style="font-size:16px" th:inline="text" class="icon-box limited-coupon" for="bank4"> [[${account.accno}]] 
+                	<span style="float:right;font-size:14px" th:if="${account.basicDoor}">基本户</span>
+                	<span th:text="${account.accname}" class="bank-name">账户1</span>
+                  </label>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div id="transfer_oper" class="clearfix">
+            <!--/*-->
+            <button class="btn btn-warning disabled" type="button" style="margin-left:40px;">打印</button>
+            <!--*/-->
+            <button class="btn btn-warning disabled" data-loading-text="支付处理中..." type="button" style="margin-left:20px;">支付确认</button>
+          </div>
+        </div>
+        <div id="transfer_step2" style="display:none;">
+          <div class="ui-title ui-title-line fn-clear">
+            <h2>第二步：支付确认</h2>
+          </div>
+          <div class="form-inline form-inline-margin">
+            <div class="form-group">
+              <label for="exampleInputName2">收款商户：</label>
+              <select class="form-control" name="tranmerchant">
+                <option th:each="merchant: ${merchants}" th:if="${#strings.contains(merchant.payMethod,'TRANSFEROFFLINE')}" th:value="${merchant.id}" th:inline="text">[[${merchant.accName+'：'+merchant.accNo}]]</option>
+              </select>
+              <!--/*-->
+              <label for="exampleInputName2">开户行名：</label>
+              <select class="form-control">
+                <option>中国农行银行成都支行温江分理处：62258802586836259</option>
+                <option>中国农行银行成都支行温江分理处：62258802586836259</option>
+              </select>
+              <!--*/-->
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail2">转账账户：</label>
+              <select class="form-control" name="tranaccount">
+                <option th:if="${accounts != '' and !#strings.equals('2',account.unionType)}" th:each="account: ${accounts}" th:value="${account.accno}" th:inline="text">[[${account.accname+'：'+account.accno}]]<span th:if="${account.basicDoor}">[基本户]</span><span th:if="${#strings.equals('1',account.unionType)}">[联合体]</span></option>
+              </select>
+              <!--/*-->
+              <label for="exampleInputEmail2">账户：</label>
+              <select class="form-control">
+                <option>账户A：62258802586836259</option>
+                <option>账户B：62258802586836259</option>
+              </select>
+              <!--*/-->
+            </div>
+          </div>
+          <div class="form-inline form-inline-margin">
+            <div class="form-group input-daterange">
+              <label for="exampleInputName2">选择时间：</label>
+                <input type="text" class="form-control" name="startdate" />
+                <span class="add-on">到：</span>
+                <input type="text" class="form-control" name="enddate"/>
+            </div>
+            <!--/*-->
+            <div class="form-group">
+              <label for="exampleInputName2">选择时间：</label>
+              <input type="text" class="form-control datepicker"  data-date-format="yyyy-mm-dd" />
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail2">到：</label>
+              <input type="text" class="form-control datepicker"  data-date-format="yyyy-mm-dd" />
+            </div>
+            <!--*/-->
+            <button class="btn btn-warning" id="tranquery_btn" type="submit">查询流水</button>
+          </div>
+          <table class="table" style="display:none;">
+            <caption>查询结果</caption>
+            <thead>
+              <tr>
+                <th style="width: 50px"><input type="checkbox" onclick="allcheck(this)"/></th>
+                <th>流水号</th>
+                <th style="width: 175px">付款账号</th>
+                <th>付款户名</th>
+                <th style="width: 100px">金额(元)</th>
+                <th>到账时间</th>
+              </tr>
+            </thead>
+            <tbody>
+            <tr style="display:none;text-align: center">
+                <td><input type="radio" name="selectFlow"/></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <!--/*-->
+              <tr>
+                <td><input type="checkbox"/></td>
+                <th>1</th>
+                <td>10024544545454</td>
+                <td>中国农业银行成都支行温江分理处</td>
+                <td></td>
+                <td></td>
+                <td><button class="btn btn-warning btn-sm" type="button">确认</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox"/></td>
+                <th>1</th>
+                <td>10024544545454</td>
+                <td>中国农业银行成都支行温江分理处</td>
+                <td></td>
+                <td></td>
+              </tr>
+              <!--*/-->
+            </tbody>
+          </table>
+        </div>
+      </div>
+	  <div th:if="${balance}" class="payment">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="inputEmail3">可用余额：</label>
+            <div class="col-sm-2">
+              <h3 class="form-control-static rmb-color"><span th:inline="text">[[${balanceAll+'元'}]] </span><button id="balance_btn_rec" class="btn btn-default btn-sm" type="button">充值</button></h3>
+            </div>
+            <div class="col-sm-6">
+            <div class="form-control-static">
+            <span th:if="${wallets != ''}" th:inline="text">(您的账户中</span><span th:if="${wallets != ''}"  th:each="wallet: ${wallets}" th:inline="text">[[${(walletStat.index > 0 ? '，' : '')+wallet.name+'系统余额：'+wallet.balance+'元'}]]</span><span th:if="${wallets != ''}" th:inline="text">)</span>
+            </div>
+          </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="inputPassword3">支付金额：</label>
+            <div class="col-sm-4">
+              <h3 class="form-control-static rmb-color rmb-color-gray"><span th:inline="text">[[${amount+'元'}]] </span></h3>
+            </div>
+          </div>
+      
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button class="btn btn-warning btn-lg" id="balance_btn" data-loading-text="支付处理中..." type="button" th:if="(${balanceAll} lt ${amount})" th:attrappend="class=${' disabled'}">确认</button>
+              <button class="btn btn-warning btn-lg" id="balance_btn" data-loading-text="支付处理中..." type="button" th:if="(${balanceAll} gt ${amount})">确认</button>
+              <button class="btn btn-warning btn-lg" id="balance_btn" data-loading-text="支付处理中..." type="button" th:if="(${balanceAll} == ${amount})">确认</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div th:if="${isAdd}" class="payment">
+        <!-- BankHidden -->
+        <p th:if="${isAdd}" th:inline="text">
+        <div class="cashier-bank-kj fn-clear ">
+          <ul class="ui-list-icons fn-mt-20 fn-clear ">
+            <li th:if="${accounts !=''}" th:each="account: ${accounts}" class="cashier-bank-kj ">
+              <input th:value="${account.accname}" type="hidden"  name="name" />
+              <input th:value="${account.bankcode}" type="hidden"  name="bankCode" />
+              <input th:value="${account.cusno}" type="hidden"  name="payId" />
+              <input th:value="${account.acctype}" type="hidden"  name="type" />
+              <label th:for="${'account_'+account.accno}" style="font-size:16px" th:inline="text" class="icon-box limited-coupon" for="bank4"> [[${account.accno}]]
+                <span class="btn btn-danger btn-xs" style="float:right;font-size:14px;margin-right:4px;margin-top:5px" th:value="${account.accno}" onclick="deleteAccount(this)">删</span>
+                <span class="btn btn-success btn-xs" style="float:right;font-size:14px;margin-right:4px;margin-top:5px" th:value="${account.accno}" onclick="updateAccount(this)">改</span>
+                <span th:text="${account.accname}" class="bank-name">账户1</span>
+                <div style="position:absolute;top:37px;z-index:1;right:0;">
+                  <span th:if="${#strings.equals('2',account.unionType)}" class="cardSpan">副</span>
+                  <span th:if="${#strings.equals('1',account.unionType)}" class="cardSpan">主</span>
+                  <span th:if="${account.basicDoor}" class="cardSpan">基</span>
+                </div>
+              </label>
+            </li>
+          </ul>
+        </div>
+        <div style="margin-top:5px">
+          <ul class="ui-list-icons fn-mt-20 fn-clear ">
+            <li style="height: 68px;">
+              <label for="bank1" id="label_saveBank" style="display: block; width: 260px; height: 68px; text-align: center;" class="icon-box limited-coupon">
+                <p class="text-center fs-16 margin-big">+</p>
+                <p class="text-center fs-16  margin-big" style="margin-top:-15px">添加银行账户</p>
+              </label>
+            </li>
+          </ul>
+        </div>
+        </p>
+      </div>
+    </div>
+    <div th:if="${bustype=='2' or isAdd}" class="warning-box" style="margin:0px;">
+		<dl>
+			<dt class="">
+				<i class="icon-exclamation-triangle"></i> 注意
+			</dt>
+			<dd th:if="${bustype=='2'}">
+              1、保证金应由基本户支付；添加银行账户信息时，请认真并按照实际真实情况填写（涉及保证金退还，请务必保证输入信息的准确，不知道的可以联系开户行询问）<br/>
+            </dd>
+            <dd>2、选择与银行转账时一致的收款商户和转出商户信息，并选择转账时间进行流水查询（转账时间是必须在当前项目公示时间到开标时间之间）；</dd>
+            <dd>3、在查询出的流水中选择用于支付本次项目的保证金，进行关联即可。用于关联的流水金额需与项目要求的保证金金额一致！</dd>
+			<dd th:if="${bustype!='2' and isAdd}">1、当没有您想要用于支付的银行卡时，请添加银行卡。</dd>
+			<dd th:if="${bustype=='2' and isAdd}">4、当没有您想要用于支付的银行卡时，请添加银行卡。</dd>
+		</dl>
+	</div>
+  </div>
+  <!-- 联合体卡弹出框 -->
+  <div id="unionAlert" class="unionAlert" style="display: none">
+    <table class="table text-center">
+      <thead>
+      <tr>
+        <th style="width: 20px;text-align: center"></th>
+        <th style="width: 150px;text-align: center">联合体主卡账号</th>
+        <th style="width: 70px;text-align: center">银行类别</th>
+        <th style="width: 70px;text-align: center">账户类型</th>
+        <th style="width: 250px;text-align: center">开户银行</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="unionBank : ${unionBanks}">
+        <td><input type="radio" name="union" th:value="${unionBank.fid}"/></td>
+        <td th:text="${unionBank.accno}"></td>
+        <td th:text="${unionBank.banktype}"></td>
+        <td th:text="${unionBank.acctype}"></td>
+        <td th:text="${unionBank.openbank}"></td>
+      </tr>
+      </tbody>
+    </table>
+  <button style="margin:0px auto 5px;display: block" class="btn btn-sm btn-info" type="button">确定</button>
+  </div>
+  <!-- JS dependencies -->
+  <script th:src="@{/ui/back/lib/custom/js/jquery.js}"></script>
+  <!--/*-->
+  <script th:src="@{/resources/js/vendor/jquery-migrate-1.2.1.min.js}" type="text/javascript"></script>
+  <script th:src="@{/resources/bootstrap/3.3.4/js/bootstrap.min.js}"></script>
+  <script th:src="@{/resources/js/vendor/holder.js}" type="text/javascript"></script>
+  <script th:src="@{/resources/js/vendor/jquery-ui-1.10.3.custom.min.js}" type="text/javascript"></script>
+  <script th:src="@{/resources/js/google-code-prettify/prettify.js}" type="text/javascript"></script>
+  <!--*/-->
+  <script th:src="@{/ui/back/lib/custom/js/bootstrap.js}"></script>
+
+  <script th:if="${success}" th:src="@{/ui/back/lib/custom/js/jquery.SuperSlide.2.1.js}"></script>
+  <!-- bootbox code -->
+  <script th:src="@{/ui/back/lib/custom/js/bootbox.js}"></script>
+  <!--/*-->
+  <script th:src="@{/resources/js/json2.js}"></script>
+  <!--*/-->
+  <script th:if="${success}" th:src="@{/ui/back/lib/custom/js/bootstrap-datepicker.min.js}"></script>
+  <script th:if="${success}" th:src="@{/ui/back/lib/custom/js/locales/bootstrap-datepicker.zh-CN.min.js}" charset="UTF-8"></script>
+  <script th:src="@{/js/jquery.searchableSelect.js}"></script>
+  <script type="text/javascript">
+    function CloseWebPage() {
+        if (navigator.userAgent.indexOf("MSIE") > 0) {
+            if (navigator.userAgent.indexOf("MSIE 6.0") > 0) {
+                window.opener = null;
+                window.close();
+            } else {
+                window.open('', '_top');
+                window.top.close();
+            }
+        }
+        else if (navigator.userAgent.indexOf("Firefox") > 0) {
+            window.location.href = 'about:blank ';
+        } else {
+            window.opener = null;
+            window.open('', '_self', '');
+            window.close();
+        }
+    }
+  </script>
+  <script th:if="${!success and not #strings.isEmpty(error)}" th:inline="text">
+  !function($) {
+      bootbox.alert({ animate: false, message: '[[${error}]]', callback: CloseWebPage });
+      <!--/*-->
+      $("<div>[[${error}]]</div>").dialog({
+          dialogClass: 'noTitleStuff',
+          modal: true,
+          buttons: {
+              "Ok": function () {
+                  $(this).dialog("close");
+                  //
+                  CloseWebPage();
+              }
+          }
+      });
+      <!--*/-->
+  }(window.jQuery);
+  </script>
+  <script th:if="${!success and #strings.isEmpty(error) and order.trnstate == 1}" th:inline="text/javascript">
+  !function($) {
+      bootbox.alert({ 
+          animate: false, 
+          message: '已记录待支付订单,请点击【OK】跳转银行网银进行支付！', 
+          callback: function(){
+              $.ajax({
+                  type: 'POST',
+                  url: /*[[@{/trans/online/invokePay}]]*/,
+                  data: {
+                      orderId: [[${order.orderno}]]
+                  },
+                  success: function(result) {
+                      if (result.success) {
+                          var form = $('<form></form>')
+                              .attr('action', /*[[@{/trans/redirect}]]*/)
+                              .attr('method', 'post')
+                              .attr("display","none")
+                              .attr('target', '_self')
+                              .append($('<input type="hidden" name="orderno"/>').attr('value', result.orderno));
+                          $("body").append(form);  
+                          form.submit();
+                      }
+                      else {
+                          bootbox.alert({ animate: false, message: result.error, callback: CloseWebPage });
+                      }
+                  }
+              });//$.ajax
+          }
+      });
+  }(window.jQuery);
+  </script>
+  <script th:if="${!success and #strings.isEmpty(error) and order.trnstate == 2}" th:inline="text/javascript">
+  !function($) {
+      bootbox.alert({ 
+          animate: false, 
+          message: '已记录成功支付订单,请点击【OK】完成支付！', 
+          callback: function(){
+              $.ajax({
+                  type: 'POST',
+                  url: /*[[@{/trans/feedback}]]*/,
+                  data: {
+                      orderId: [[${order.orderno}]]
+                  },
+                  success: function(result) {
+                      if (result.success) {
+                          bootbox.alert({ animate: false, message: "支付成功", callback: CloseWebPage });
+                      }
+                      else {
+                          bootbox.alert({ animate: false, message: result.error });
+                      }
+                  }
+              });//$.ajax
+          }
+      });
+  }(window.jQuery);
+  </script>
+  <script th:if="${success}" th:inline="javascript">
+    jQuery(".sel-pay").slide({trigger:"click"});
+
+
+    //解决 nextElementSibling IE8下兼容问题
+    function getNextElement(node){
+      var NextElementNode = node.nextSibling;
+      while(NextElementNode.nodeValue != null){
+        NextElementNode = NextElementNode.nextSibling
+      }
+      return NextElementNode;
+    }
+
+    var $globalbtn;
+    !function($) {
+        /**************************************************************************************
+         * ONLINEPAYMENT
+         **************************************************************************************/
+        $("input[name='merchantId']").change(function(e)
+        {
+            debugger;
+            $("#online_btn").addClass('disabled');
+            //
+            var bankCode = $("input[name='merchantId'][value='" + e.target.value + "']+input[name='bankCode']")
+                .val();
+            var bankName = $("input[name='merchantId'][value='" + e.target.value + "']~input[name='bankName']")
+                .val();
+            // 将收款方改为该商户所属的收款客户 使用next的原因为merchantid很可能会重复，导致获取不到指定的值
+//            var orgName = e.target.nextElementSibling.nextElementSibling.nextElementSibling.value;
+              var orgName = getNextElement(getNextElement(getNextElement(e.target))).value; //兼容IE8
+           //toorg
+            $("#toorg").text("收款方："+orgName);
+            // 因光大银行原因：选择光大银行在线支付可以为非光大银行，则此处显示的不应为选择的银行，而是传进来的银行
+            //$("div.ui-title-line span").text(bankName);
+            //
+            $("#online_acc ul>li").each(function(index, element)
+            {
+                var $el = $(element);
+                //因光大银行原因：选择光大银行在线支付可以为非光大银行，则此处显示的不应为选择的银行，而是传进来的银行
+                //暂时显示的是银行编码
+                //$("div.ui-title-line span").text($el.children("input[name='bankCode']").val());
+                if ($el.children("input[name='bankCode']").val() !== bankCode)
+                {
+                	if(bankCode == "CEB"){
+                		//$el.children("input[name='bankCode']").val()的值为传递进来的银行卡银行编码
+                		//暂时未对光大银行的在线支付限制（光大在线支付仅支持20余家银行）
+                		//if(是否为光大支持的银行编码){
+                			//是光大支持的银行编码
+                			if ($el.children("input[type='radio'][checked]").length > 0)
+	                        {
+	                             $("#online_btn").removeClass('disabled');
+	                        }
+	                        $el.css('display','block'); 
+                		//} else{
+                			//不是光大银行支持的银行编码
+                			//$el.children("input[type='radio']").attr("checked", false);
+                        	//$el.css('display','none'); 
+                		//}
+                    } else{
+                    	$el.children("input[type='radio']").attr("checked", false);
+                        $el.css('display','none'); 
+                    }
+                }
+                else
+                {
+                    if ($el.children("input[type='radio'][checked]").length > 0)
+                    {
+                        $("#online_btn").removeClass('disabled');
+                    }
+                    $el.css('display','block'); 
+                }
+            });
+            //
+            $("#online_acc").css('display','block');
+        });
+        //
+        $("#online_acc input[name='no']").change(function(e) {
+            $("#online_btn").removeClass('disabled');
+        });
+        
+        $("#online_btn").click(function() {
+            $globalbtn = $(this).button('loading');
+            
+            var $selMerchant = $("input[name='merchantId']:checked"),
+                $selAccount = $("#online_acc input[name='no']:checked");
+            $.ajax({
+                type: 'POST',
+                url: /*[[@{/pub/trans/online/pay}]]*/,
+                data: {
+                	token:       $("input[name='token']").val(),
+                	userid:      $("input[name='userid']").val(),
+                	fpaddress:   $("input[name='fpaddress']").val(),
+                	fpbucode:    $("input[name='fpbucode']").val(),
+                	targetid:    $("input[name='targetid']").val(),
+                    merchantId:  $selMerchant.val(),
+                    payAccNo:    $selAccount.val()
+                },
+                success: function(result) {
+                	if (result.success) {
+                        <!--/*-->
+                        /**
+                        // 创建Form
+                        var form = $('<form></form>');
+                        // 设置属性
+                        form.attr('action', "/trans/redirect");
+                        form.attr('method', 'post');
+                        // form的target属性决定form在哪个页面提交
+                        // _self -> 当前页面 _blank -> 新页面
+                        form.attr('target', '_self');
+                        
+                        // 创建Input
+                        var orderId = $('<input type="hidden" name="orderId" />');
+                        orderId.attr('value', result.orderId);
+                        // 附加到Form
+                        form.append(orderId);
+                        
+                        // 创建Input
+                        var orderId = $('<input type="hidden" name="payUrl" />');
+                        orderId.attr('value', result.orderId);
+                        // 附加到Form
+                        form.append(orderId);
+                        // 提交表单
+                        form.submit();
+                         */
+                        <!--*/-->
+                        var form = $('<form></form>')
+                            .attr('action', /*[[@{/pub/trans/redirect}]]*/)
+                            .attr('method', 'post')
+                            .attr("display","none")
+                            .attr('target', '_self')
+                            .append($('<input type="hidden" name="orderid"/>').attr('value', result.orderiId));
+                        $("body").append(form);  
+                        form.submit();
+                        <!--/*-->
+                        /**
+                        window.location.href = "/trans/redirect/" + result.orderId;
+                        console.debug(result.success);
+                         */
+                        <!--*/-->
+                    }
+                    else {
+                        bootbox.alert({ animate: false, message: result.error, callback: CloseWebPage });
+                    }
+                }
+            });//$.ajax
+        });
+
+        /**************************************************************************************
+         * TRANSFEROFFLINE
+         **************************************************************************************/
+        $('.input-daterange').datepicker({
+            format: "yyyy-mm-dd",
+            language: "zh-CN"
+        })
+        $("input[name='transferMerchantId']").change(function(e)
+        {
+            var bankCode = $(this).next().val(),
+                displayed = (bankCode == 'ICBC');
+            $("#transfer_step1>#transfer_acc input[type='radio']").attr("checked", false);
+            $("#transfer_step1>#transfer_acc").css('display', displayed ? 'block' : 'none');
+            $("#transfer_step1 button")[displayed ? 'addClass' : 'removeClass']('disabled');
+            
+            $("#transfer_step1 span.oper-general")[displayed?"hide":"show"]();
+            $("#transfer_step1 span.oper-icbc")[displayed?"show":"hide"]();
+        });
+        //
+        $("#transfer_acc input[name='no']").change(function(e) {
+            $("#transfer_step1 button").removeClass('disabled');
+        });
+        $("#transfer_step1 button:last-child").click(function()
+        {
+            var $checkedMerchant = $("input[name='transferMerchantId']:checked"),
+                merchantId = $checkedMerchant.val(),
+                bankCode = $checkedMerchant.next().val(),
+                abc_cfg = $("input[name='abc_cofig']").val();
+            if (bankCode == 'ICBC') {
+              buildRecvAccount (merchantId);
+            } else if (bankCode == 'ABC') {
+              if (abc_cfg == '1') {
+                buildRecvAccount (merchantId);
+              } else {
+                $("#transfer_step2 select:first>option[value='" + merchantId + "']").attr('selected','selected');
+                $("#transfer_step1").css('display','none');
+                $("#transfer_step2").css('display','block');
+                $("ul.wizard-steps li:first-child").removeClass('active');
+                $("ul.wizard-steps li:last-child").addClass('active');
+              }
+            } else {
+                $("#transfer_step2 select:first>option[value='" + merchantId + "']").attr('selected','selected');
+                
+                $("#transfer_step1").css('display','none');
+                $("#transfer_step2").css('display','block');
+                $("ul.wizard-steps li:first-child").removeClass('active');
+                $("ul.wizard-steps li:last-child").addClass('active');
+            }
+        });
+
+        $("#tranquery_btn").click(function() {
+        	var endDate = $("input[name='enddate']").val();
+        	var startDate = $("input[name='startdate']").val();
+        	if(endDate == undefined || endDate == "" || startDate == undefined || startDate == ""){
+        		bootbox.alert({ animate: false,className: 'btn-myStyle',message: "请选择开始时间和截止时间" });
+        		return;
+        	}
+
+            var endDate_limit = $("#enddate_limit_definded").val();
+            var startDate_limit = $("#startdate_limit_definded").val();
+            if(startDate_limit!=undefined){
+              if(startDate_limit!=""){
+                if(startDate_limit!=null){
+                  if(new Date(startDate_limit.replace(/-/g,"\/")) > new Date(startDate.replace(/-/g,"\/")) ){
+                    bootbox.alert({ animate: false,className: 'btn-myStyle',message: "开始时间只能选择["+startDate_limit+"]之后的时间" });
+                    return;
+                  }
+                }
+              }
+            }
+            if(endDate_limit!=undefined){
+              if(endDate_limit!=""){
+                if(endDate_limit!=null){
+                  if(new Date(endDate.replace(/-/g,"\/")) > new Date(endDate_limit.replace(/-/g,"\/")) ){
+                    bootbox.alert({ animate: false,className: 'btn-myStyle',message: "结束时间只能选择["+endDate_limit+"]之前的时间" });
+                    return;
+                  }
+                }
+              }
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: /*[[@{/pub/trans/transfer/query}]]*/,
+                data: {
+                    token:      $("input[name='token']").val(),
+                    merchantId: $("select[name='tranmerchant']").val(),
+                	fpaddress:  $("input[name='fpaddress']").val(),
+                	fpbucode:   $("input[name='fpbucode']").val(),
+                	targetid:   $("input[name='targetid']").val(),
+                    payAccNo:   $("select[name='tranaccount']").val(),
+                    startDate:  startDate,
+                    endDate:    endDate
+                },
+                success: function(result) {
+
+                    if (result.success) {
+                        if (result.items.length > 0) {
+                            var tbody = $("#transfer_step2>table>tbody"),
+                                tr = tbody.children("tr:first");
+                            //tbody.children("tr:first~tr").remove();
+                            tbody.empty();
+                            
+                            $.each(result.items || [], function(index, item) {
+                                // 克隆tr，每次遍历都可以产生新的tr
+                                var clonedTr = tr.clone();
+
+                                $(clonedTr).data("item",item);    //行级缓存数据
+                                $(clonedTr).find("td:not(:first)").click(function () {   //行级事件绑定
+                                    $(clonedTr).find("input[name='selectFlow']").click();
+                                });
+                                
+                                // 循环遍历cloneTr的每一个td元素，并赋值
+                                clonedTr.children("td").each(function(inner_index) {
+
+                                    // 根据索引为每一个td赋值
+                                    switch (inner_index) {
+                                        case(1):
+                                            $(this).html(item.identityId);
+                                            break;
+                                        case(2):
+                                            $(this).html(item.payAccNo);
+                                            break;
+                                        case(3):
+                                            $(this).html(item.payAccName);
+                                            break;
+                                        case(4):
+                                            $(this).html(item.amount);
+                                            break;
+                                        case(5):
+                                            $(this).html(item.tranTime);
+                                            break;
+                                        /*case(5):
+                                            $(this).html('<button class="btn btn-warning btn-sm" onclick="transferConfirm(this, \''+ item.merchantId +'\',\''+ item.payAccNo +'\',\''+ item.identityId +'\',\''+ item.flowId +'\')" data-loading-text="支付处理中..." type="button">确认</button>');
+                                            break;*/
+                                    }
+                                });//end children.each
+    
+                                clonedTr.show();
+                                clonedTr.appendTo(tbody);
+                            });//end $each
+
+                            //添加行级确认按钮
+                            var btn_tr = document.createElement("tr");
+                            btn_tr.innerHTML = '<td colspan="6"><button type="button" class="btn btn-warning" onclick="comfirmEvent(this)" data-loading-text="支付处理中...">确认</button></td>';
+                            $(btn_tr).appendTo(tbody);
+
+                            $("#transfer_step2>table").show();
+                        }
+                        else {
+                            
+                            $("#transfer_step2>table").hide();
+                            bootbox.alert({ animate: false, message: '未找到转账流水记录' });
+                        }
+                    }
+                    else {
+                        
+                        $("#transfer_step2>table").hide();
+                        bootbox.alert({ animate: false, message: result.error });
+                    }
+                }
+            });//$.ajax
+        });
+
+        /**************************************************************************************
+         * TRANSFEROFFLINE
+         **************************************************************************************/
+        $("#balance_btn").click(function() {
+            $globalbtn = $(this).button('loading');
+            
+            $.ajax({
+                type: 'POST',
+                url: /*[[@{/pub/trans/balance/pay}]]*/,
+                data: {
+                    token: $("input[name='token']").val()
+                },
+                success: function(result) {
+
+                    if (result.success) {
+                        bootbox.alert({ animate: false, message: "支付成功", callback: CloseWebPage });
+                    }
+                    else {
+                        bootbox.alert({ animate: false, message: result.error, callback: function(){ $globalbtn.button('reset'); } });
+                    }
+                }
+            });//$.ajax
+        });//end clickEvent
+        
+        <!--/*-->
+        
+        <!--*/-->
+    }(window.jQuery);
+
+    function allcheck(obj) {
+        $("#transfer_step2 table tbody tr:not(:last) input[type='checkbox']").prop("checked",$(obj).prop("checked"));
+    }
+
+    function comfirmEvent(btn) {
+        //获取已选中的流水
+        var $checks = $("#transfer_step2 table tbody tr:not(:last) input[name='selectFlow']:checked");
+        var $checkTr = $checks.closest("tr");
+        if($checks.size() > 0){
+            if($checks.size() > 10){ //流水限制在10条以内
+                bootbox.alert({ animate: false, message: "目前流水绑定的条目数限制不大于10条，当前条目数："+$checks.size()});
+                return;
+            }
+            var flowIds = "";
+            var identityIds = "";
+            var checkAmount = 0.0;
+            var amount = parseFloat([[${amount}]]);
+            $checkTr.each(function (i,n) {
+                flowIds += $(n).data("item").flowId+"-";
+                identityIds += $(n).data("item").identityId+"-";
+                checkAmount += parseFloat($(n).data("item").amount);
+            })
+
+            flowIds = flowIds.substring(0,flowIds.length-1)+"";
+            identityIds = identityIds.substring(0,identityIds.length-1)+"";
+            var merchantId = $($checkTr[0]).data("item").merchantId;
+            var payAccNo = $($checkTr[0]).data("item").payAccNo;
+
+            //金额校验
+            if(amount > checkAmount){
+                bootbox.alert({ animate: false, message: "当前所选中流水总金额不足"});
+                return;
+            }else if(checkAmount > amount){
+                bootbox.confirm({
+                    message: "当前所选中流水总金额大于所需缴纳金额,若继续请点击确认",
+                    buttons: {
+                        confirm: {
+                            label: '确认',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '取消',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function (result) {
+                        if(result) transferConfirm(btn,merchantId,payAccNo,identityIds,flowIds);
+                    }
+                });
+            }else{
+                transferConfirm(btn,merchantId,payAccNo,identityIds,flowIds);
+            }
+        }else{
+            bootbox.alert({ animate: false, message: "请先选中流水记录"});
+        }
+    }
+
+    function icbcTransferConfirm(transfer){
+    	$.ajax({
+            type: 'POST',
+            url: /*[[@{/pub/trans/transfer/confirmICBC}]]*/,
+            data: {
+                token:      	$("input[name='token']").val(),
+                fpaddress:		$("input[name='fpaddress']").val(),
+                recvaccno: 		transfer.iRecvAccNo,
+                recvaccname:   	transfer.iRecvAccName,
+                openaccdept:   	transfer.iOpenAccDept,
+                orderno:		transfer.iOrderNo,
+                amount:			transfer.iAmount,
+                payaccno:		transfer.iPayAccNo,
+                payaccname:		transfer.iPayAccName
+            },
+            success: function(result) {
+
+                if (result.success) {
+                    bootbox.alert({ animate: false, message: "支付成功", callback: CloseWebPage });
+                }
+                else {
+                    bootbox.alert({ animate: false, message: result.error, callback: function(){
+                            <!--/*-->
+                            //$("#transfer_step2>table>thead>tr>th:last").attr("style","width: 70px");
+                            <!--*/-->
+                            $globalbtn.button('reset');
+                            $("#transfer_step2 .btn").not($globalbtn).removeClass('disabled'); 
+                        } 
+                    });
+                }
+            }
+        });//$.ajax
+    }
+
+    function transferConfirm(btn, merchantId, payAccNo, identityId, flowId) {
+
+        //$("#transfer_step2>table>thead>tr>th:last").attr("style","width: 108px");
+
+        $globalbtn = $(btn).button('loading');
+        $("#transfer_step2 .btn").not($globalbtn).addClass('disabled');
+        $.ajax({
+            type: 'POST',
+            url: /*[[@{/pub/trans/transfer/confirm}]]*/,
+            data: {
+                token:      $("input[name='token']").val(),
+                fpaddress:	$("input[name='fpaddress']").val(),
+                merchantId: merchantId,
+                payAccNo:   payAccNo,
+                identityId: identityId,
+                flowId:		flowId
+            },
+            success: function(result) {
+
+                if (result.success) {
+                    bootbox.alert({ animate: false, message: "支付成功", callback: CloseWebPage });
+                }
+                else {
+                    bootbox.alert({ animate: false, message: result.error, callback: function(){
+
+                            //$("#transfer_step2>table>thead>tr>th:last").attr("style","width: 70px");
+
+                            $globalbtn.button('reset');
+                            $("#transfer_step2 .btn").not($globalbtn).removeClass('disabled'); 
+                        } 
+                    });
+                }
+            }
+        });//$.ajax
+    };
+    
+     $("#balance_btn").click(function() {
+         $globalbtn = $(this).button('loading');
+         
+         $.ajax({
+             type: 'POST',
+             url: /*[[@{/trans/balance/pay}]]*/,
+             data: {
+                 token: $("input[name='token']").val()
+             },
+             success: function(result) {
+
+                 if (result.success) {
+                     bootbox.alert({ animate: false, message: "支付成功", callback: CloseWebPage });
+                 }
+                 else {
+                     bootbox.alert({ animate: false, message: result.error, callback: function(){ $globalbtn.button('reset'); } });
+                 }
+             }
+         });//$.ajax
+     });//end clickEvent
+     
+     $("#balance_btn_rec").click(function() {
+    	 // 弹出弹出框 请用户输入充值金额
+    	 bootbox.dialog({
+              title: '<span style="font-weight: bold;font-size: 14px;">充值余额</span>',
+              message: '<div class="cashier-bank-kj fn-clear " style="margin-bottom: 0;">  ' +
+                '<ul class="ui-list-icons ui-list-icons-3 fn-mt-20 fn-clear "> ' +
+                '<li class="cashier-bank-kj " style="height:96px"> ' +
+                '<label class="icon-box limited-coupon"> ' +
+                '<span class="bank-name bank-name1"><em>充值金额：</em><input type="text" id="amount" name="amount"/></span> ' +
+                '<span class="bank-name bank-name2">即将进入余额充值界面，进入余额充值界面时会从该页面退出，充值完成后请再次支付</span> ' +
+                '</label> ' +
+                '</li> ' +
+                '</ul> ' +
+                '</div>',
+              closeButton: false,
+              buttons: {
+            	  "取消": {
+                      //label: "OK",
+                      className: "btn-success",
+                     
+                    },
+                "充值": {
+                  //label: "OK",
+                  className: "btn-success",
+                  callback: function(){
+                  	 // 点击充值
+                	var amount=$("input[name='amount']").val();
+          			if(amount == undefined||amount==''){
+          				bootbox.alert({ animate: false, message: "请先输入您要缴纳的金额", callback: CloseWebPage });
+          				return ;
+          			}
+          			amount = jQuery.trim(amount);
+          			var p =/^[1-9](\d+(\.\d{1,2})?)?$/;
+          			var p1=/^[0-9](\.\d{1,2})?$/;
+          			if(!(p.test(amount) || p1.test(amount))){
+          				bootbox.alert({ animate: false, message: "您输入的金额格式不正确，请输入正确的金额", callback: CloseWebPage });
+          				return ;
+          			}
+          			doPayPost(amount);
+	              }
+                }
+              }
+            }
+          );
+     });//end clickEvent
+     
+     function doPayPost(amount){
+    	var fpbucode = $("input[name='fpbucode']").val();
+		var token = $("input[name='token']").val();
+		
+		jQuery.post(/*[[@{/pub/payurl}]]*/,{fpbucode:fpbucode,token:token,famount:amount,paytype:'3'},function(o){
+			if(o.msg==undefined|| o.msg == ""){
+				//正确
+				var realPayWindow=window.open(o.payUrl);
+				 if (navigator.userAgent.indexOf("MSIE") > 0) {
+                      if (navigator.userAgent.indexOf("MSIE 6.0") > 0) {
+                          window.opener = null;
+                          window.close();
+                      } else {
+                          window.open('', '_top');
+                          window.top.close();
+                      }
+                  }
+                  else if (navigator.userAgent.indexOf("Firefox") > 0) {
+                      window.location.href = 'about:blank ';
+                  } else {
+                      window.opener = null;
+                      window.open('', '_self', '');
+                      window.close();
+                  }
+			}else{
+				bootbox.alert({ animate: false, message: o.msg, callback: function(){
+                	} 
+				});
+			}
+		});
+     }
+
+    function vaildateIsCCB() {
+        var type = $("#fbanktype").val();
+        var xt = $("#areaCode").val();
+        if (xt == "01") {
+            if (type != "CCB") {
+                $("#nu").hide();
+            } else {
+                $("#nu").show();
+            }
+        } else {
+            $("#nu").show();
+        }
+
+    }
+
+    function newInput(){
+        var text = $("#newInput").text();
+        if(text=='没有?'){
+            $("#areaSName").next("div").hide();
+            $("#areaName").next("div").hide();
+            $("#openBankName").next("div").hide();
+            $("#areaSName").hide();
+            $("#areaName").hide();
+            $("#openBankName").hide();
+            $("#openBankName").empty();
+            $("#openBankName").next("div").val();
+            $("#fopenaccountbank").show();
+            $("#funionpayno").val('');
+            $("#newInput").text("选择?");
+        }else{
+            $("#areaSName").next("div").show();
+            //$("#areaName").next("div").show();
+            //$("#openBankName").next("div").show();
+            //$("#areaSName").show();
+            //$("#areaName").show();
+            //$("#openBankName").show();
+            $("#fopenaccountbank").hide();
+            $("#fopenaccountbank").val("");
+            $("#funionpayno").val('');
+            $("#newInput").text("没有?");
+        }
+    }
+
+     $("#label_saveBank").click(function() {
+    	// 弹出弹出框 请用户输入要添加的银行卡信息
+    	 bootbox.dialog({
+              title: '<span style="font-weight: bold;font-size: 14px;">新增银行账户</span>',
+              className:'bankDialog',
+              message: '<div class="cashier-bank-kj fn-clear pop-window-inner " style="margin-bottom: 0;">  ' +
+                '<form method="post" class="form-x  margin-big-bottom"> ' +
+                '<table class="window-table" style="width: 510px;"> ' +
+                '<tr><th>开户用户：</th><td><input class="input input-small input-block" type="text" id="faccountuser" name="faccountuser"/></td></tr> ' +
+                '<tr><th>银行账号：</th><td><input class="input input-small input-block" type="text" id="fbankaccount" name="fbankaccount" maxlength="30" onkeyup="value=value.replace(/[^\\d$]/g,\'\') " onbeforepaste="clipboardData.setData(\'text\',clipboardData.getData(\'text\').replace(/[^\\d$]/g,\'\'))"/></td></tr> ' +
+                '<tr><th>银行类别：</th><td>' +
+              '<select class="input input-small input-block select-searchable" name="fbanktype" id="fbanktype" onchange="vaildateIsCCB()">' +
+              '<option value="CCB" selected="selected">中国建设银行</option>' +
+              '<option value="ICBC">中国工商银行</option>' +
+						'<option value="BOC">中国银行</option>' +
+						'<option value="ABC">中国农业银行</option>' +
+						'<option value="PSBC">中国邮政储蓄银行</option>' +
+						'<option value="COMM">交通银行</option>' +
+						'<option value="CMB">招商银行</option>' +
+						'<option value="CIB">兴业银行</option>' +
+						'<option value="CGB">广发银行</option>' +
+						'<option value="CEB">光大银行</option>' +
+						'<option value="ECITIC">中信银行</option>' +
+                        '<option value="SCRCU">四川农村信用社</option>'+
+                        '<option value="UCB">城市商业银行</option>'+
+                        '<option value="RCB">农村商业银行</option>'+
+                        '<option value="CB">村镇银行</option>'+
+                        '<option value="WZB">外资银行</option>'+
+                        '<option value="HZB">合资银行</option>'+
+                        '<option value="PB">民营银行</option>'+
+					'</select>' +
+				'</td></tr> ' +
+                '<tr><th>账户类型：</th><td>' +
+              		'<select class="input input-small input-block select-searchable" name="facctype" id="facctype">' +
+              '<option th:if="${areaCode}" value="2">个人</option>' +
+						'<option value="1" selected="selected">企业</option>' +
+					'</select>' +
+                '</td></tr> ' +
+                '<tr id="areaNameshow">' +
+                                      '<th>开户银行：</th>' +
+                                      '<td >' +
+                                          '<select class="input input-small input-block select-searchable" name="areaSName" id="areaSName" onchange="areaXchange(this)">' +
+                                              '<option value="">选择省份</option>' +
+                                              '<option th:each="area:${arealist}" th:text="${area.fareaSName}" th:value="${area.fareaSName}">'+'</option>' +
+                                          '</select>' +
+                                           '<select class="input input-small input-block select-searchable" name="areaName" id="areaName" onchange="areachange(this)">' +
+                                                '<option value="">选择市级</option>' +
+                                         '</select>' +
+                                          '<select class="input  input-small input-block select-searchable" name="openBankName" id="openBankName" onchange="bankNamechange(this)">'+
+                                            '<option value="" selected="selected">选择开户银行</option>' +
+                                          '</select> ' +
+                                          '<input class="input input-small input-block" style="display: none;" type="text"  id="fopenaccountbank" name="fopenaccountbank" />' +
+                                          '<a id="newInput" onclick="newInput()" style="color: blue" >没有?</a>'+
+                                      '</td>' +
+              '</tr> ' +
+              '<tr><th>银行联行号：</th><td><input class="input input-small input-block" type="text" id="funionpayno" name="funionpayno" maxlength="12" onkeyup="value=value.replace(/[^\\d$]/g,\'\') " onbeforepaste="clipboardData.setData(\'text\',clipboardData.getData(\'text\').replace(/[^\\d$]/g,\'\'))"/></td></tr> ' +
+              '<tr id="nu"><th>客户识别号：</th><td><input class="input input-small input-block" type="text" id="fbankcustomerno" name="fbankcustomerno"/></td></tr> ' +
+              '<input type="hidden" th:value="${xt}" id="areaCode" /> ' +
+                '<tr><th>用户类型：</th><td>' +
+                	'<select class="input input-small input-block select-searchable" name="fusertype" id="fusertype">' +
+              '<option th:if="${areaCode}" value="0">非基本户</option>' +
+              '<option value="1" selected="selected">基本户</option>' +
+					'</select>' +
+                '</td></tr> ' +
+/*              '<tr><th>联合体类型：</th><td>' +
+              '<select class="input input-small input-block select-searchable" name="uniontype" id="uniontype" onchange="unionChange(this)">' +
+                '<option value="" selected="selected">非联合体</option>' +
+                '<option value="1">联合体主卡</option>' +
+                '<option value="2">联合体附属卡</option>' +
+              '</select>' +
+              '</td></tr> ' +
+              '<tr><th>所属联合体：</th><td><input style="width:155px;display:inline" class="input input-block" type="text" id="parentid" name="parentid" readonly="readonly" disabled="disabled" />' +
+              '<a style="color: blue;cursor: pointer" onclick="getUnionInfo(this)">获取</a>'+
+              '</td></tr> ' +*/
+                '</table> ' +
+                '</form> ' +
+                '<div class="unionDiv"></div>'+
+                '<div class="warning-box">'+
+                    '<dl>'+
+                       '<dt class="">'+
+                       '<i class="icon-exclamation-triangle"></i> 注意'+
+                       '</dt>'+
+                  '<dd>1、开户用户通常为企业名称，请确保和开户许可证上开户用户一致。</dd>'+
+                  '<dd>2、开户银行指当前输入的银行账户是在哪个银行的哪个支行开户，请确保和开户许可证上的开户银行一致。</dd>'+
+                  '<dd>3、银行联行号，请询问开户银行相关工作人员取得联行号具体值，通常为12位数字。</dd>'+
+                  '<dd>4、客户识别号，中国建设银行，省农信银有该值，必须填，其他银行有则填，没有则随意。</dd>'+
+                '</dl>'+
+                '</div>'+
+                '</div>',
+              closeButton: false,
+              buttons: {
+            	  "取消": {
+                      //label: "OK",
+                      className: "btn-success",
+                     
+                    },
+                  "保存": {
+                  //label: "OK",
+                  className: "btn-success",
+                  callback: function(){
+                  	  //ajax 保存成功刷新页面，保存失败提示用户保存失败
+                      var fopenaccountbank = $("#openBankName").find("option:selected").text();
+                	  var faccountuser=$("input[name='faccountuser']").val();
+                	  var fbankaccount=$("input[name='fbankaccount']").val();
+                	  var funionpayno=$("input[name='funionpayno']").val();
+/*                      var uniontype = document.getElementById("uniontype").value;
+                      var parentid = document.getElementById("parentid").value;*/
+                      if(fopenaccountbank == undefined ||fopenaccountbank== null||fopenaccountbank==''){
+                          fopenaccountbank=$("input[name='fopenaccountbank']").val();
+                      }
+                      if(fopenaccountbank=='选择开户银行'){
+                          fopenaccountbank = document.getElementById("fopenaccountbank").value;
+                      }
+                      var fbankcustomerno = $("input[name='fbankcustomerno']").val().replace(new RegExp(/(#)/g), "井");
+                      ;
+                	  var fbanktype=$("select[name='fbanktype']").val();
+                	  var facctype=$("select[name='facctype']").val();
+                	  var fusertype=$("select[name='fusertype']").val();
+
+                	  if(faccountuser == undefined||faccountuser==''){
+           				  bootbox.alert({ animate: false, message: "请先输入开户用户", callback: function(){} });
+           				  return ;
+           			  } else if(facctype!='2'){
+                          if(faccountuser.length>=5){
+                          } else{
+                              bootbox.alert({ animate: false, message: "开户用户至少为5个汉字或10个非汉字的字符（一个汉字默认为两个非汉字的字符）", callback: function(){} });
+                              return ;
+                          }
+                          var num = 10;
+                          for(var i=faccountuser.length;i>=0;i--){
+                              if(faccountuser.charCodeAt(i)>=19968){
+                                  if(!(faccountuser.charCodeAt(i)>=40623)){
+                                      num = num-2;
+                                  } else{
+                                      num = num-1;
+                                  }
+                              } else{
+                                  num = num-1;
+                              }
+                          }
+                          if(num>0){
+                              bootbox.alert({ animate: false, message: "开户用户至少为5个汉字或10个非汉字的字符（一个汉字默认为两个非汉字的字符）", callback: function(){} });
+                              return;
+                          }
+                      }else{}
+                	  if(fbankaccount == undefined||fbankaccount==''){
+           				  bootbox.alert({ animate: false, message: "请先输入银行账号", callback: function(){} });
+           				  return ;
+           			  }
+                	  if(funionpayno == undefined||funionpayno==''){
+           				  bootbox.alert({ animate: false, message: "请先输入银行联行号", callback: function(){} });
+           				  return ;
+           			  }
+                	  if(fopenaccountbank == undefined||fopenaccountbank==''){
+           				  bootbox.alert({ animate: false, message: "请先输入开户银行", callback: function(){} });
+           				  return ;
+           			  }
+                      //选中联合体附属卡时，联合体主卡信息必须存在值
+                      /*<![CDATA[*/
+/*                      if(uniontype == '2' && !parentid){
+                          bootbox.alert({ animate: false, message: "所属联合体不可为空，点击获取联合体主卡", callback: function(){} });
+                          return;
+                      }*/
+
+                      //2018/1/19 根据是否为襄阳国土的后续判定操作
+/*                      if([[${XyArea}]] && [[${dealtargetType}]] == 'land'){
+                          var errmsg = saveCard_XY_land(uniontype,faccountuser);
+                          if(errmsg){
+                              bootbox.alert({ animate: false, message: errmsg, callback: function(){} });
+                              return;
+                          }
+                      }*/
+                      /*]]>*/
+                      var xt = $("#areaCode").val();
+                      if (xt == "01") {
+                          if (fbanktype == "CCB") {
+                              if (fbankcustomerno == undefined || fbankcustomerno == '') {
+                                  bootbox.alert({
+                                      animate: false, message: "请先输入客户识别号", callback: function () {
+                                      }
+                                  });
+                                  return;
+                              }
+                          }
+                      }
+                	  $.ajax({
+                          type: 'POST',
+                          url: /*[[@{/pub/saveBankCard}]]*/,
+                          data: {
+                              token:      		$("input[name='token']").val(),
+                              userid:      		$("input[name='userid']").val(),
+                              faccountuser:		faccountuser,
+                              fbankaccount: 	fbankaccount,
+                              funionpayno:   	funionpayno,
+                              fopenaccountbank: fopenaccountbank,
+                              fbankcustomerno:	fbankcustomerno,
+                              fbanktype:		fbanktype,
+                              acctype:			facctype,
+                              usertype:			fusertype,
+/*                              uniontype:        uniontype,
+                              parentid:         parentid*/
+                          },
+                          success: function(result) {
+                        	  debugger;
+                              if (result.msg=="success") {
+                                  bootbox.alert({
+                                      animate: false, message: '银行添加成功，点击OK刷新页面', callback: function () {
+                            		  window.location.href="javascript:history.go(0)";
+                            	  }});
+                              }
+                              else {
+                            	  bootbox.alert({ animate: false, message: result.msg, callback: function(){} });
+                              }
+                          }
+                      });//$.ajax
+	              }
+                }
+              }
+            }
+          );
+         $('.select-searchable').searchableSelect();
+     });
+
+    /**襄阳国土银行卡保存的判定规则**/
+    function saveCard_XY_land(uniontype,faccountuser) {
+        /*<![CDATA[*/
+        var username = [[${frorg}]];
+        var union = username.indexOf(",") != -1 ? true : false;   //根据支付方是否存在逗号判定是否为联合体
+        if(union){  //联合体
+            //开户用户名称判定
+            if((username+',').indexOf(faccountuser+',') == -1){ return "当前输入的开户用户名称不在联合体用户列表中！"; }
+            //类型判定
+            if(!uniontype){ return "当前联合体类型不能选择非联合体！"; }
+        }else{
+            //开户用户名称判定
+            if(username != faccountuser){ return "当前输入的开户用户名称不正确，请参考支付方名称设置！"; }
+            //类型判定
+            if(uniontype){ return "当前联合体类型只能选择非联合体！"; }
+        }
+        return null;
+        /*]]>*/
+    }
+
+    /**联合体类型切换**/
+    function unionChange(ele) {
+        var $div = $("#parentid").closest("tr");       //附属卡栏
+        if(ele.value == '2'){ //为附属卡时显示主卡关联选项
+            $("#parentid").removeProp("disabled");
+            $div.show();
+        }else{
+            $("#parentid").prop("disabled",true);
+            $div.hide();
+        }
+    }
+
+    /**获取联合体主卡信息**/
+    function getUnionInfo(ele) {
+        var $dialog = $(ele).closest(".modal-dialog"); //弹出框
+        var $unionDiv = $dialog.find(".unionDiv");     //联合体内容框
+        var $union = $("#unionAlert").clone();         //联合体信息框
+        $union.removeAttr("id");//移除ID属性
+        $unionDiv.empty();
+        $("#parentid").val("");
+
+        //联合体展示在附属卡下
+        $unionDiv.append($union);
+        $union.show();
+
+        $dialog.find("tbody tr").each(function (i,n) {
+            $(this).find("td:not(:first)").click(function () {
+                $(n).find("input").click();
+            });
+        });
+        //绑定确定按钮事件赋值页面
+        $dialog.find("button").click(function () {
+            $("#parentid").val($dialog.find("input:checked").val());
+            $union.hide();
+        });
+    }
+
+    function buildRecvAccount (merchantId) {
+      $globalbtn = $(this).button('loading');
+
+      $.ajax({
+        type: 'POST',
+        url: /*[[@{/pub/trans/transfer/query}]]*/,
+        data: {
+          token:       $("input[name='token']").val(),
+          merchantId:  merchantId,
+          userid:      $("input[name='userid']").val(),
+          fpaddress:   $("input[name='fpaddress']").val(),
+          fpbucode:    $("input[name='fpbucode']").val(),
+          targetid:    $("input[name='targetid']").val(),
+          payAccNo:    $("#transfer_acc input[name='no']:checked").val()
+        },
+        success: function(result) {
+          debugger;
+          if (result.success) {
+            bootbox.dialog({
+                      title: '<span style="font-weight: bold;font-size: 14px;">转账付款收款账户信息</span>',
+                      message: '<div class="cashier-bank-kj fn-clear " style="margin-bottom: 0;">  ' +
+                      '<ul class="ui-list-icons ui-list-icons-3 fn-mt-20 fn-clear "> ' +
+                      '<li class="cashier-bank-kj" style="height:216px"> ' +
+                      '<label class="icon-box limited-coupon"> ' +
+                      '<span title="'+result.transfer.name+'" class="false icon '+result.transfer.iBankCode+'"></span> ' +
+                      '<span class="bank-name"><em>收款账户号：</em>'+result.transfer.iRecvAccNo+'</span> ' +
+                      '<span class="bank-name bank-name2"><em>收款账户名：</em>'+result.transfer.iRecvAccName+'</span> ' +
+                      '<span class="bank-name bank-name3"><em>收款账户开户行名称：</em>'+result.transfer.iOpenAccDept+'</span> ' +
+                      '<span class="bank-name bank-name4"><em>订单号：</em>'+result.transfer.iOrderNo+'<em style="margin-left: 40px;width: 70px;">金额：</em>'+result.transfer.iAmount+'</span> ' +
+                      '<span class="bank-name bank-name5"><em>支付账户号：</em>'+result.transfer.iPayAccNo+'</span> ' +
+                      '<span class="bank-name bank-name6"><em>支付账户名：</em>'+result.transfer.iPayAccName+'</span> ' +
+                      '<span class="bank-name bank-name6">请到上述账户支付后点击OK使订单与流水号同步</span> ' +
+                      '</label> ' +
+                      '</li> ' +
+                      '</ul> ' +
+                      '</div>',
+                      closeButton: false,
+                      buttons: {
+                        "ok": {
+                          //label: "OK",
+                          className: "btn-success",
+                          callback: function(){
+                            icbcTransferConfirm(result.transfer);
+                          }
+                        }
+                      }
+                    }
+            );
+          }
+          else {
+            bootbox.alert({ animate: false, message: result.error, callback: function(){ $globalbtn.button('reset'); } });
+          }
+        }
+      });//$.ajax
+    };
+
+    function deleteAccount(obj){
+      bootbox.confirm({
+        buttons: {
+          confirm: {
+            label: '确认',
+            className: 'btn-success'
+          },
+          cancel: {
+            label: '取消',
+            className: 'btn-success'
+          }
+        },
+        message: '您确定要删除当前银行账户',
+        callback: function(result) {
+          if(result) {
+            $.ajax({
+              type: 'POST',
+              url: /*[[@{/pub/delBankCard}]]*/,
+              data: {
+                accno:       $(obj).attr("value"),
+                userid:      $("input[name='userid']").val(),
+              },
+              success: function(data) {
+                if (data.msg == 'success') {
+                  bootbox.alert({ animate: false, message: '删除银行账户信息成功，点击OK刷新页面', callback: function(){
+                    window.location.href="javascript:history.go(0)";
+                  }});
+                } else{
+                  bootbox.alert({ animate: false, message: data.msg, callback: function(){} });
+                }
+              }
+            });//$.ajax
+          } else {
+          }
+        },
+      });
+    };
+    function updateAccount(obj){
+        $.ajax({
+            type:'POST',
+            url: /*[[@{/pub/updateBankCard}]]*/,
+            data:{
+                accno:       $(obj).attr("value"),
+                userid:      $("input[name='userid']").val()
+            },
+            success:function(data){
+
+                        var fbanktype=
+                            '<option value="CCB">中国建设银行</option>' +
+                            '<option value="ICBC">中国工商银行</option>' +
+                            '<option value="BOC">中国银行</option>' +
+                            '<option value="ABC">中国农业银行</option>' +
+                            '<option value="PSBC">中国邮政储蓄银行</option>' +
+                            '<option value="COMM">交通银行</option>' +
+                            '<option value="CMB">招商银行</option>' +
+                            '<option value="CIB">兴业银行</option>' +
+                            '<option value="CGB">广发银行</option>' +
+                            '<option value="CEB">光大银行</option>' +
+                            '<option value="ECITIC">中信银行</option>' +
+                            '<option value="SCRCU">四川农村信用社</option>'+
+                            '<option value="UCB">城市商业银行</option>'+
+                            '<option value="RCB">农村商业银行</option>'+
+                            '<option value="CB">村镇银行</option>'+
+                            '<option value="WZB">外资银行</option>'+
+                            '<option value="HZB">合资银行</option>'+
+                            '<option value="PB">民营银行</option>';
+
+                    var facctype=
+                        '<option value="2">个人</option>' +
+                        '<option value="1">企业</option>';
+
+                fbanktype=fbanktype.replace('"'+data.fbanktype+'"','"'+data.fbanktype+'"'+' selected="selected"');
+                facctype=facctype.replace('"'+data.facctype+'"','"'+data.facctype+'"'+' selected="selected"');
+                var fusertype=
+                    '<option value="0">非基本户</option>' +
+                    '<option value="1">基本户</option>';
+                fusertype=fusertype.replace('"'+data.fusertype+'"','"'+data.fusertype+'"'+' selected="selected"');
+                var uniontypeStr =
+                    '<option value="" selected="selected">非联合体</option>' +
+                    '<option value="1">联合体主卡</option>' +
+                    '<option value="2">联合体附属卡</option>';
+                uniontypeStr=uniontypeStr.replace('"'+data.funiontype+'"','"'+data.funiontype+'"'+' selected="selected"');
+                // 弹出弹出框 请用户输入要添加的银行卡信息
+                bootbox.dialog({
+                    title: '<span style="font-weight: bold;font-size: 14px;">修改银行账户</span>',
+                    className:'bankDialog',
+                    message: '<div class="cashier-bank-kj fn-clear pop-window-inner " style="margin-bottom: 0;">  ' +
+                    '<form method="post" class="form-x  margin-big-bottom"> ' +
+                    '<table class="window-table" style="width: 510px;"> ' +
+                    '<tr><th>开户用户：</th><td><input value="'+data.faccountuser+'" class="input input-small input-block" type="text" id="faccountuser" name="faccountuser"/></td></tr> ' +
+                    '<tr><th>银行账号：</th><td><input value="'+data.fbankaccount+'" class="input input-small input-block" type="text" id="fbankaccount" name="fbankaccount" maxlength="30"  /></td></tr> ' +
+                    '<tr><th>银行类别：</th><td>' +
+                    '<select class="input input-small input-block select-searchable" name="fbanktype" id="fbanktype">' +
+                    fbanktype +
+                    '</select>' +
+                    '</td></tr> ' +
+                    '<tr><th>账户类型：</th><td>' +
+                    '<select class="input input-small input-block select-searchable" name="facctype" id="facctype">' +
+                    facctype +
+                    '</select>' +
+                    '</td></tr> ' +
+                    '<tr  id="areaNameshow"><th>开户银行：</th>' +
+                    '<td>' +
+                    '<select class="input input-small input-block select-searchable" style="display: none;" name="areaSName" id="areaSName" onchange="areaXchange(this)">' +
+                    '<option value="">选择省份</option>' +
+                    '<option th:each="area:${arealist}" th:text="${area.fareaSName}" th:value="${area.fareaSName}">'+'</option>' +
+                    '</select>' +
+                    '<select class="input input-small input-block" style="display: none;" name="areaName" id="areaName" onchange="areachange(this)">' +
+                    '<option value="">选择市级</option>' +
+                    '</select>' +
+                    '<select class="input  input-small input-block" style="display: none;" name="openBankName" id="openBankName" onchange="bankNamechange(this)">'+
+                    '<option value="" selected="selected">选择开户银行</option>' +
+                    '</select> ' +
+                    '<input value="'+data.fopenaccountbank+'" class="input input-small input-block" type="text" id="fopenaccountbank" name="fopenaccountbank"/>' +
+                    '<a id="newInput" onclick="newInput()" style="color: blue;display: inline-block;" >选择?</a>'+
+                    '</td>' +
+                    '</tr> ' +
+                    '<tr><th>银行联行号：</th><td><input value="'+data.funionpayno+'" class="input input-small input-block" type="text" id="funionpayno" name="funionpayno" maxlength="12" onkeyup="value=value.replace(/[^\\d$]/g,\'\') " onbeforepaste="clipboardData.setData(\'text\',clipboardData.getData(\'text\').replace(/[^\\d$]/g,\'\'))"/></td></tr> ' +
+                    '<tr><th>客户识别号：</th><td><input value="'+data.fbankcustomerno+'" class="input input-small input-block" type="text" id="fbankcustomerno" name="fbankcustomerno"/></td></tr> ' +
+                    '<tr><th>用户类型：</th><td>' +
+                    '<select class="input input-small input-block select-searchable" name="fusertype" id="fusertype">' +
+                    fusertype +
+                    '</select>' +
+                    '</td></tr> ' +
+/*                    '<tr><th>联合体类型：</th><td>' +
+                    '<select class="input input-small input-block select-searchable" name="uniontype" id="uniontype" onchange="unionChange(this)">' +
+                    uniontypeStr +
+                    '</select>' +
+                    '</td></tr> ' +
+                    '<tr><th>所属联合体：</th><td><input style="width:155px;display:inline" value="'+data.fparentfid+'" class="input input-block" type="text" id="parentid" name="parentid" readonly="readonly" disabled="disabled" />' +
+                    '<a style="color: blue;cursor: pointer" onclick="getUnionInfo(this)">获取</a>'+
+                    '</td></tr> ' +*/
+                    '</table> ' +
+                    '</form> ' +
+                    '<div class="unionDiv"></div>'+
+                    '<div class="warning-box">'+
+                    '<dl>'+
+                    '<dt class="">'+
+                    '<i class="icon-exclamation-triangle"></i> 注意'+
+                    '</dt>'+
+                    '<dd>1、开户用户通常为企业名称，请确保和开户许可证上开户用户一致。</dd>'+
+                    '<dd>2、开户银行指当前输入的银行账户是在哪个银行的哪个支行开户，请确保和开户许可证上的开户银行一致。</dd>'+
+                    '<dd>3、银行联行号，请询问开户银行相关工作人员取得联行号具体值，通常为12位数字。</dd>'+
+                    '<dd>4、客户识别号，中国建设银行，省农信银有该值，必须填，其他银行有则填，没有则随意。</dd>'+
+                    '</dl>'+
+                    '</div>'+
+                    '</div>',
+                    closeButton: false,
+                    buttons: {
+                        "取消": {
+                            //label: "OK",
+                            className: "btn-success",
+
+                        },
+                        "保存": {
+                            //label: "OK",
+                            className: "btn-success",
+                            callback: function () {
+                                //ajax 保存成功刷新页面，保存失败提示用户保存失败
+                                var faccountuser = $("input[name='faccountuser']").val();
+                                var fbankaccount = $("input[name='fbankaccount']").val();
+                                var funionpayno = $("input[name='funionpayno']").val();
+                                //var fopenaccountbank = $("input[name='fopenaccountbank']").val();
+                                var fopenaccountbank = $("#openBankName").find("option:selected").text();
+                                var fbankcustomerno = $("input[name='fbankcustomerno']").val();
+                                var fbanktype = $("select[name='fbanktype']").val();
+                                var facctype = $("select[name='facctype']").val();
+                                var fusertype = $("select[name='fusertype']").val();
+                                var fenterprisename = $("input[name='fenterprisename']").val();
+                                var fkegalcode = $("input[name='fkegalcode']").val();
+/*                                var uniontype = document.getElementById("uniontype").value;
+                                var parentid = document.getElementById("parentid").value;*/
+                                if(fopenaccountbank == undefined ||fopenaccountbank== null||fopenaccountbank==''){
+                                    fopenaccountbank=$("input[name='fopenaccountbank']").val();
+                                }
+
+                                if(fopenaccountbank=='选择开户银行'){
+                                    fopenaccountbank=$("input[name='fopenaccountbank']").val();
+                                }
+                                if (faccountuser == undefined || faccountuser == '') {
+                                    bootbox.alert({
+                                        animate: false, message: "请先输入开户用户", callback: function () {
+                                        }
+                                    });
+                                    return;
+                                }
+                                if (fbankaccount == undefined || fbankaccount == '') {
+                                    bootbox.alert({
+                                        animate: false, message: "请先输入银行账号", callback: function () {
+                                        }
+                                    });
+                                    return;
+                                }
+                                if (fbankaccount.length>28) {
+                                    bootbox.alert({
+                                        animate: false, message: "银行账号过长，请修改", callback: function () {
+                                        }
+                                    });
+                                    return;
+                                }
+                                if (funionpayno == undefined || funionpayno == '') {
+                                    bootbox.alert({
+                                        animate: false, message: "请先输入银行联行号", callback: function () {
+                                        }
+                                    });
+                                    return;
+                                }
+                                if (fopenaccountbank == undefined || fopenaccountbank == '') {
+                                    bootbox.alert({
+                                        animate: false, message: "请先输入开户银行", callback: function () {
+                                        }
+                                    });
+                                    return;
+                                }
+                                if (fbankcustomerno == undefined || fbankcustomerno == '') {
+                                    bootbox.alert({
+                                        animate: false, message: "请先输入客户识别号", callback: function () {
+                                        }
+                                    });
+                                    return;
+                                }
+                                //选中联合体附属卡时，联合体主卡信息必须存在值
+                                /*<![CDATA[*/
+/*                                if(uniontype == '2' && !parentid){
+                                    bootbox.alert({ animate: false, message: "所属联合体不可为空，点击获取联合体主卡", callback: function(){} });
+                                    return;
+                                }*/
+
+                                //2018/1/19 根据是否为襄阳国土的后续判定操作
+/*                                if([[${XyArea}]] && [[${dealtargetType}]] == 'land'){
+                                    var errmsg = saveCard_XY_land(uniontype,faccountuser);
+                                    if(errmsg){
+                                        bootbox.alert({ animate: false, message: errmsg, callback: function(){} });
+                                        return;
+                                    }
+                                }*/
+                                /*]]>*/
+                                fbankcustomerno = fbankcustomerno.replace(new RegExp(/(#)/g),"井");
+                                $.ajax({
+                                    type: 'POST',
+                                    url: /*[[@{/pub/saveBankCard}]]*/,
+                                    data: {
+                                        token: $("input[name='token']").val(),
+                                        userid: $("input[name='userid']").val(),
+                                        fid: data.fid,
+                                        faccountuser: faccountuser,
+                                        fbankaccount: fbankaccount,
+                                        funionpayno: funionpayno,
+                                        fopenaccountbank: fopenaccountbank,
+                                        fbankcustomerno: fbankcustomerno,
+                                        fbanktype: fbanktype,
+                                        acctype: facctype,
+                                        usertype: fusertype,
+/*                                        uniontype: uniontype,
+                                        parentid: parentid*/
+                                    },
+                                    success: function (result) {
+                                        if (result.msg == "success") {
+                                            bootbox.alert({
+                                                animate: false, message: '银行修改成功，点击OK刷新页面', callback: function () {
+                                                    window.location.href = "javascript:history.go(0)";
+                                                }
+                                            });
+                                        }
+                                        else {
+                                            bootbox.alert({
+                                                animate: false, message: result.msg, callback: function () {
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+                $('.select-searchable').searchableSelect();
+                $("#areaSName").next("div").hide();
+            }
+        });
+    };
+
+    function areaXchange(obj){
+      var fareaSName = $(obj).val();
+      if(fareaSName == undefined || fareaSName == null || fareaSName == ""){
+        $("#areaName").empty();
+      }else{
+        $.ajax({
+          type: 'POST',
+          url: /*[[@{/pub/getAreaXiJi}]]*/,
+          data: {
+            fareaSName:fareaSName,
+          },
+          success: function(data) {
+            if (data.msg == 'success') {
+             // $("#areaName").empty();
+              $("#areaName").append('<option value="" selected="selected">选择市级</option>');
+              var num = data.areaXiJi.length;
+              for (var i=num;i>0;i--) {
+               // $("#areaName").append('<option  value="'+data.areaXiJi[num-i].fareaNameCode+'" text="'+data.areaXiJi[num-i].fareaName+'">'+data.areaXiJi[num-i].fareaName+'</option>');
+                //$("#funionpayno").val(result.allbankList[num-i].fbankFirm);
+                  areaName_tmp = areaName_tmp+'<option  value="'+data.areaXiJi[num-i].fareaNameCode+'" text="'+data.areaXiJi[num-i].fareaName+'">'+data.areaXiJi[num-i].fareaName+'</option>';
+              }
+                $("#areaName").next("div.searchable-select").remove().end().html(areaName_tmp).searchableSelect();
+            } else{
+                var areaName_tmp = '<option value="" selected="selected">选择市级</option>';
+                //$("#areaName").empty();
+                $("#areaName").next("div.searchable-select").remove().end().html(areaName_tmp).searchableSelect();
+                //$("#areaName").append('<option value="" selected="selected">选择市级</option>');
+              bootbox.alert({ animate: false, message: data.msg, callback: function(){} });
+            }
+          }
+        });//$.ajax
+      }
+    }
+
+    function areachange(obj){
+      var fareaNameCode = $(obj).val();
+      if(fareaNameCode == undefined || fareaNameCode == null || fareaNameCode == ""){
+        $("#openBankName").empty();
+      }else{
+        $.ajax({
+          type: 'POST',
+          url: /*[[@{/pub/getAreaOpenBankName}]]*/,
+          data: {
+            fareaNameCode:fareaNameCode,
+          },
+          success: function(data) {
+            if (data.msg == 'success') {
+             // $("#openBankName").empty();
+             // $("#openBankName").append('<option value="" selected="selected">选择开户银行</option>');
+                var openBankName_tmp = '<option value="" selected="selected">选择开户银行</option>';
+                var num = data.allbankList.length;
+              for (var i=num;i>0;i--) {
+                  openBankName_tmp = openBankName_tmp+'<option  value="'+data.allbankList[num-i].fid+'" text="'+data.allbankList[num-i].fbankName+'">'+data.allbankList[num-i].fbankName+'</option>';
+                  //$("#openBankName").append('<option  value="'+data.allbankList[num-i].fid+'" text="'+data.allbankList[num-i].fbankName+'">'+data.allbankList[num-i].fbankName+'</option>');
+                //$("#funionpayno").val(result.allbankList[num-i].fbankFirm);
+              }
+                $("#openBankName").next("div.searchable-select").remove().end().html(openBankName_tmp).searchableSelect();
+
+            } else{
+                var openBankName_tmp = '<option value="" selected="selected">选择开户银行</option>';
+                //$("#openBankName").empty();
+                $("#openBankName").next("div.searchable-select").remove().end().html(openBankName_tmp).searchableSelect();
+                //$("#openBankName").append('<option value="" selected="selected">选择开户银行</option>');
+                bootbox.alert({ animate: false, message: data.msg, callback: function(){} });
+            }
+          }
+        });//$.ajax
+      }
+    }
+
+    function bankNamechange(obj){
+      var fid = $(obj).val();
+      if(fid == undefined || fid == null || fid == ""){
+        $("#funionpayno").val("");
+      }else{
+        $.ajax({
+          type: 'POST',
+          url: /*[[@{/pub/getAreaOpenBankFirm}]]*/,
+          data: {
+            fid:fid,
+          },
+          success: function(data) {
+            if (data.msg == 'success') {
+              $("#funionpayno").val(data.bankFirm);
+            } else{
+              $("#funionpayno").val("");
+              bootbox.alert({ animate: false, message: data.msg, callback: function(){} });
+            }
+          }
+        });//$.ajax
+      }
+    }
+
+  </script>
+</body>
+</html>

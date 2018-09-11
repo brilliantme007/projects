@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<div style="float: left;border:1px solid #F00;height: 250px;">
+<h1>数据库连接测试</h1>
+<h1 th:text="${username}"></h1>
+<ul >
+    <li th:if="${allTest!=null}" th:each="all:${allTest}" th:text="${all.id+','+all.fid}"></li>
+</ul>
+<ul >
+    <li th:if="${allUser!=null}" th:each="all:${allUser}" th:text="${all.id+','+all.name}">
+    </li>
+</ul>
+</div>
+<div style="float: left;border:1px solid #F00;height: 250px;">
+<h1>Excel导出测试</h1>
+<a href="http://localhost:8080/export">导出</a>
+</div>
+<div style="float: left;border:1px solid #F00;height: 250px;">
+<h1>文件下载测试</h1>
+    <form id="uploadFile" action="/uploadFile" method="post">
+    要下载的文件正式路径:<input name="filePath" type="text" value="E:\unlocker206.zip"/><br>
+    已下载文件的length:<input name="hadDownFileLength" type="text" value="0"/><br>
+    <input id="download" type="submit"  th:value="下载"/>
+    </form>
+</div>
+<div style="float: left;border:1px solid #F00;height: 250px;">
+    <h1>分页测试</h1>
+    <form action="/hello.action" method="post">
+    <table border="1px">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>fid</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${pTest!=null}" th:each="pt:${pTest}">
+                <td th:text="${pt.id}"></td>
+                <td th:text="${pt.fid}"></td>
+            </tr>
+        </tbody>
+
+    </table>
+        当前页:<input type="text" name="pageNum" th:value="${pageNum}"/>
+        每页大小:<input type="text" name="pageSize" th:value="${pageSize}"/>
+        总页数:<input type="text" name="pageTotal" th:value="${pagetTotal}"/>
+        <input type="submit" value="提交"/>
+    </form>
+</div>
+</body>
+<script type="text/javascript" th:src="@{/jquery-3.2.1.min.js}"></script>
+</html>

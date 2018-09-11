@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="keywords" content="关键字,关键字">
+    <meta name="description" content="关键字,关键字">
+    <title>the test of alipay</title>
+</head>
+<link rel="stylesheet" type="text/css" th:href="@{/css/semantic.min.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+<script type="text/javascript" th:src="@{/js/jquery-3.2.1.min.js}"></script>
+<script type="text/css" th:src="@{/js/semantic.min.js}"></script>
+
+<body text=#000000 bgColor="#ffffff" leftMargin=0 topMargin=4>
+<div width="600px" height="100%" style="margin-left: 500px">
+    <form  id="dataForm">
+        表名:tb_<input type="text" name="tablename" id="table_name" value="" />
+        <input type="button" value="验证唯一性" id="add_table_button"/>
+        <table id="dataTable">
+            <tr>
+                <th width="25%">字段名</th>
+                <th width="25%">字段类型</th>
+                <th width="25%">长度</th>
+                <th>操作</th>
+            </tr>
+        </table>
+    </form>
+    <input type="button" value="保存" onclick="saveTable();"/><input type="button" value="取消" onclick="resetTable();"/>
+
+</div>
+</body>
+<script th:inline="javascript">
+
+    $("#add_table_button").click(function(){
+        var table_name=$("#table_name").val();
+        if(table_name==undefined||table_name.trim()==""){
+            alert("请输入表名称");
+            return;
+        }else if(!/^[a-z]+$/.test(table_name)){
+            alert("请输入小写字母");
+            return;
+        }
+
+        //此处还需要通过ajax验证表名是否已经存在了
+
+            addTr();
+    });
+
+    function addTr(){
+        $("#dataTable").append('<tr>' +
+            '<td><input name="valuekey" style="width:100%" type="text" value=""/></td>' +
+            '<td>' +
+            '<select name="valuetype" style="width:100%" >' +
+            '<option value="varchar">varchar</option>' +
+            '<option value="int">int</option>' +
+            '<option value="char">char</option>' +
+            '<option value="timestamp">timestamp</option>' +
+            '</select>' +
+            '</td>' +
+            '<td>' +
+            '<input name="valuelength" type="number" style="width:100%" value=""/>' +
+            '</td>' +
+            '<td>' +
+            '<input type="button" value="新增" onclick="addTr()" style="width:100%"/>' +
+            '</td>' +
+            '</tr>');
+    }
+
+    function saveTable(){
+        var tablename=$("#table_name").val();
+        var valuekey=$("input[name=valuekey]");
+        var valuetype=$("select[name=valuetype]");
+        var valuelength=$("input[name=valuelength]");
+        var valuekeys="";
+        var valuetypes="";
+        var valuelengths="";
+        for(var i in valuekey){
+            if(valuekey.length>i){
+                if(i==valuekey.length-1){
+                    valuekeys=valuekeys+valuekey[i].value;
+                }else{
+                    valuekeys=valuekeys+valuekey[i].value+",";
+                }
+            }
+        }
+        for(var i in valuetype){
+            if(valuetype.length>i){
+                if(i==valuetype.length-1){
+                    valuetypes=valuetypes+valuetype[i].value;
+                }else{
+                    valuetypes=valuetypes+valuetype[i].value+",";
+                }
+            }
+        }
+        for(var i in valuelength){
+            if(valuelength.length>i){
+                if(i==valuelength.length-1){
+                    valuelengths=valuelengths+valuelength[i].value;
+                }else{
+                    valuelengths=valuelengths+valuelength[i].value+",";
+                }
+            }
+        }
+        console.info(valuekeys);
+        console.info(valuetypes);
+        console.info(valuelengths);
+        $.post(/*[[@{/createtable/addDataXml}]]*/,{tableName:tablename,valueKey:valuekeys,valueType:valuetypes,valueLength:valuelengths},function(data){
+            alert("成功!");
+        });
+    }
+
+    function resetTable(){
+        alert("有待完成..");
+    }
+
+</script>
+</html>

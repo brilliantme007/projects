@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<link rel="stylesheet" type="text/css" th:href="@{/css/semantic.min.css}">
+<script type="text/javascript" th:src="@{/js/jquery-3.2.1.min.js}"></script>
+<script type="text/css" th:src="@{/js/semantic.min.js}"></script>
+
+<script type="text/javascript">
+
+
+</script>
+<body>
+<style type="text/css">
+    .div1{  width: 800; height: 800; border: 1px solid #000000;}
+    .div2{ width:700px ; height: 100%; background-color: #E8E8E8;}
+    .div22{
+        margin-left: 300px;
+    }
+</style>
+
+<script type="text/javascript">
+    $(function(){
+        var ctxMenu = $('#ctxMenu1');
+        var tree = $('#tree1');
+        tree.mac('dtree', {
+            treeConfig: {
+                title: 'All Regions',
+                rootVisible: true
+            },
+            ctxMenu: ctxMenu,
+            menuOffset: { x: 0, y: 0 },
+            doInsert: function(dt, callback){
+                var d = dt.data;
+                d.level = d.level?d.level:0;
+                var p = { level: 1, path: '/', parent: 'root' };
+                if(d.level>0){
+                    p.parent = d.key;
+                    p.level = d.level + 1;
+                    if(d.level==1){
+                        p.path = '/'+ d.key + '/';
+                    }else{
+                        p.path = d.path + d.key + '/';
+                    }
+                    p.value = d.value;
+                }
+                App.open({
+                    action: 'editRegion',
+                    title: 'Add Region',
+                    modal: true,
+                    params: p
+                }, function(dd){
+                    callback(dd);
+                    //dt.deactivate();
+                    //dt.activate();
+                });
+            },
+            doUpdate: function(dt, callback){
+                var d = dt.data;
+                App.open({
+                    action: 'editRegion',
+                    title: 'Edit Region',
+                    modal: true,
+                    params: d
+                }, function(dd){
+                    callback(dd);
+                });
+            },
+            doDelete: function(dt, callback){
+                App.confirm('Are you sure you want to delete?', function(){
+                    App.alert('Delete is not allowed in this demo.')
+//				var p = { id: dt.data.key, level: dt.data.level };
+//				$.post('delete.php', p, function(data){
+//					var ro = App.eval(data);
+//					if(ro.success){
+//						App.alert(Msg.info.success, [ Msg.del ]);
+//						callback();
+//						var tx = tree.getNode(dt.data.parent);
+//						tx.activate();
+//					}else{
+//						App.alert(ro.data, ro.params);
+//					}
+//				});
+                });
+            },
+            loader: {
+                url: '/javascript/dtree/list.php',
+                params: { key: 'root' },
+                autoLoad: true
+            },
+            onCtxMenu: function(el){
+                var d = el.prop('dtnode').data;
+                ctxMenu.enableContextMenuItems();
+                if(!d.level){
+                    ctxMenu.disableContextMenuItems('update,delete');
+                }
+            }
+        });
+        $('.demoSource').val($('#demo').html());
+        App.setLanguage();
+    });
+</script>
+<div id="tree1"><div class="ui-dynatree-container"><span class="ui-dynatree-folder ui-dynatree-expanded ui-dynatree-has-children ui-dynatree-lastsib ui-dynatree-exp-el ui-dynatree-ico-ef" id="ui-dynatree-id-root"><span class="ui-dynatree-icon"></span><a class="ui-dynatree-title" href="#">All Regions</a></span><div><span class="ui-dynatree-document ui-dynatree-lastsib ui-dynatree-statusnode-wait ui-dynatree-exp-cl ui-dynatree-ico-c" id="ui-dynatree-id-_1"><span class="ui-dynatree-empty"></span><span class="ui-dynatree-connector"></span><span class="ui-dynatree-icon"></span><a class="ui-dynatree-title" href="#">Loading…</a></span></div></div></div>
+<ul class="ctxMenu hidden" id="ctxMenu1">
+    <li class="add item clear" action="insert">
+		<span style="display: block">
+			<span class="icon icon-plus"></span>
+			<span>Add Region</span>
+		</span>
+    </li>
+    <li class="edit item clear" action="update">
+		<span style="display: block">
+			<span class="icon icon-pencil"></span>
+			<span>Edit Region</span>
+		</span>
+    </li>
+    <li class="delete item clear" action="delete">
+		<span style="display: block">
+			<span class="icon icon-minus"></span>
+			<span>Delete Region</span>
+		</span>
+    </li>
+</ul>
+</body>
+</html>

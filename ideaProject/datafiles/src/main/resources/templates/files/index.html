@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<link rel="stylesheet" type="text/css" th:href="@{/css/semantic.min.css}">
+<script type="text/javascript" th:src="@{/js/jquery-3.2.1.min.js}"></script>
+<script type="text/css" th:src="@{/js/semantic.min.js}"></script>
+
+<script type="text/javascript">
+function download(fid){
+   $("#fid").val(fid);
+   $("#downloadfiles").submit();
+}
+function deletefiles(fid){
+    $("#deletefid").val(fid);
+    $("#deletefiles").submit();
+}
+
+function prefiles(fid,furl){
+    switch(furl){
+        case "txt": writTxt(fid);break;
+        case "out": writTxt(fid);break;
+        case "java": writTxt(fid);break;
+        case "class": writTxt(fid);break;
+        case "html": writTxt(fid);break;
+        case "sql": writTxt(fid);break;
+        case "xml": writTxt(fid);break;
+        case "css": writTxt(fid);break;
+        case "js": writTxt(fid);break;
+        case "log": writTxt(fid);break;
+        case "doc": writDoc(fid);break;
+        default:$("#pre").html("<img src=\"/prefiles?fid="+fid+"\" type=\"pic\"/>");break;
+    }
+}
+function writTxt(fid){
+    jQuery.post("/writTxt",{fid:fid},function(result){
+        $("#pre").html("<div><pre  style=\"font-size:12px;\">"+result+"</pre></div>");
+    });
+}
+
+function writDoc(fid){
+    jQuery.post("/writDoc",{fid:fid},function(result){
+        $("#pre").html("<div>"+result+"</div>");
+    });
+}
+</script>
+<body>
+<style type="text/css">
+    .div1{  width: 800; height: 800; border: 1px solid #000000;}
+    .div2{ width:700px ; height: 100%; background-color: #E8E8E8;}
+    .div22{
+        margin-left: 300px;
+    }
+</style>
+<form id="downloadfiles" action="/downloadfiles" method="post">
+
+    <input name="fid" type="hidden" id="fid"/>
+
+</form>
+<form id="deletefiles" action="/deletefiles" method="post">
+
+    <input name="fid" type="hidden" id="deletefid"/>
+
+</form>
+
+<form id="prefiles" action="/prefiles" method="post">
+
+    <input name="fid" type="hidden" id="prefid"/>
+
+</form>
+
+<div class="div1">
+    <div class="div2 div22">
+        <form method="POST" enctype="multipart/form-data" action="/addfiles">
+            <input type="text" name="filedir" placeholder="目录（没有自动创建）"/><br/>
+            <input type="file" name="file"/><br/>
+            <input type="text" name="fdis" placeholder="文件描述"/><br/>
+            <input type="submit" value="上传">
+        </form>
+    </div>
+</div>
+<div class="div1">
+    <div class="div2 div22">
+        <form action="/" method="post">
+            <table>
+                <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>名称</th>
+                    <th>类型</th>
+                    <th>url</th>
+                    <th>描述</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${pTest!=null}" th:each="pt:${pTest}">
+                    <td th:text="${pt.fid}"></td>
+                    <td th:text="${pt.fname}"></td>
+                    <td th:text="${pt.endstiff}"></td>
+                    <td th:text="${pt.furl}"></td>
+                    <td th:text="${pt.fdis}"></td>
+                    <td th:text="${pt.fcreatetime}"></td>
+                    <td ><input type="button" th:onclick="'javascript:download('+${pt.fid}+');'" value="下载"/>
+                        <input type="button" th:onclick="'javascript:deletefiles('+${pt.fid}+');'" value="删除"/>
+                        <input type="button" th:onclick="'javascript:prefiles('+${pt.fid}+',\''+${pt.endstiff}+'\');'" value="打开"/>
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+            当前页:<input type="text" name="pageNum" th:value="${pageNum}"/>&nbsp;&nbsp;&nbsp;
+            每页大小:<span type="text" name="pageSize" th:text="${pageSize}"></span>&nbsp;&nbsp;&nbsp;
+            总页数:<span name="pageTotal" th:text="${pageTotal}"></span>&nbsp;&nbsp;&nbsp;
+            <input type="submit" value="提交"/>
+        </form>
+    </div>
+</div>
+<div style="height:100%;width: 100%;" id="pre">
+
+</div>
+</body>
+</html>

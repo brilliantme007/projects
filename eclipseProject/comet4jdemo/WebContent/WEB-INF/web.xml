@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+  <display-name>comet4jdemo</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  <listener>  
+        <listener-class>org.comet4j.core.CometAppListener</listener-class>  
+    </listener>  
+      
+    <listener>  
+        <listener-class>com.test.comet4jdemo.TestComet</listener-class>  
+    </listener>  
+      
+    <listener>  
+        <listener-class>com.test.comet4jdemo.TestCometTimer</listener-class>  
+    </listener>  
+      
+    <servlet>  
+        <servlet-name>cometServlet</servlet-name>  
+        <servlet-class>org.comet4j.core.CometServlet</servlet-class>  
+    </servlet>  
+    <servlet-mapping>  
+        <servlet-name>cometServlet</servlet-name>  
+        <url-pattern>/comet</url-pattern>  
+    </servlet-mapping>  
+</web-app>
